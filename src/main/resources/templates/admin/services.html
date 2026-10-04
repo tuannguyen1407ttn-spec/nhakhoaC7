@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Dịch Vụ - Admin - C7 Smile Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9b7a;
+            --primary-dark: #0a6e5c;
+            --primary-light: #14b895;
+            --sidebar-bg: #1a1d23;
+            --sidebar-active: rgba(13, 155, 122, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7fa;
+            margin: 0;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            color: #a0aab5;
+            position: fixed;
+            width: 260px;
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-header i {
+            font-size: 1.4rem;
+            color: var(--primary-light);
+        }
+
+        .sidebar-header h5 {
+            margin: 0;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-user {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e53e3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .sidebar-user-info .name {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .sidebar-user-info .role {
+            font-size: 0.75rem;
+            color: #fc8181;
+            background: rgba(229, 62, 62, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 12px 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: #a0aab5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .sidebar-nav a.active {
+            background: var(--sidebar-active);
+            color: var(--primary-light);
+            border-left-color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 8px 16px;
+        }
+
+        .sidebar-section-label {
+            padding: 8px 20px 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #5a6370;
+            font-weight: 600;
+        }
+
+        .logout-link {
+            color: #e53e3e !important;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #edf2f7;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #4a5568;
+            background: #f8fafc;
+            border-bottom-width: 1px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fa-solid fa-tooth"></i>
+            <h5>C7 Admin</h5>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar"
+                th:text="${loggedInUser != null ? loggedInUser.fullName.substring(0,1).toUpperCase() : 'A'}">A</div>
+            <div class="sidebar-user-info">
+                <div class="name" th:text="${loggedInUser != null ? loggedInUser.fullName : 'Admin'}">Admin</div>
+                <span class="role">Admin</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Quản lý chính</div>
+            <a th:href="@{/admin/dashboard}"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a>
+            <a th:href="@{/admin/reports}"><i class="fa-solid fa-chart-pie"></i> Báo Cáo Thống Kê</a>
+            <a th:href="@{/admin/services}" class="active"><i class="fa-solid fa-tooth"></i> Dịch Vụ</a>
+            <a th:href="@{/admin/dentists}"><i class="fa-solid fa-user-doctor"></i> Bác Sĩ</a>
+            <a th:href="@{/admin/patients}"><i class="fa-solid fa-users"></i> Bệnh Nhân</a>
+            <a th:href="@{/admin/appointments}"><i class="fa-solid fa-calendar-check"></i> Lịch Hẹn</a>
+            <div class="sidebar-divider"></div>
+            <a th:href="@{/logout}" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất</a>
+        </nav>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="font-weight:700; color:#2d3748; margin-bottom:4px;">Quản Lý Dịch Vụ</h2>
+                <p style="color:#718096; margin:0;">Danh sách các dịch vụ nha khoa hiện có</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus me-1"></i> Thêm Mới Dịch
+                Vụ</button>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="section-card p-0 overflow-hidden">
+            <div class="table-responsive p-3">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình Ảnh</th>
+                            <th>Tên Dịch Vụ</th>
+                            <th>Giá</th>
+                            <th class="text-end">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="svc : ${services}">
+                            <td th:text="${svc.id}"></td>
+                            <td>
+                                <img th:if="${svc.imageUrl}" th:src="${svc.imageUrl}" width="50" height="50"
+                                    class="rounded">
+                                <span th:unless="${svc.imageUrl}" class="text-muted"><i
+                                        class="fa-regular fa-image"></i></span>
+                            </td>
+                            <td th:text="${svc.name}" class="fw-bold text-dark"></td>
+                            <td class="text-success fw-bold"
+                                th:text="${#numbers.formatDecimal(svc.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-warning me-1" th:data-id="${svc.id}"
+                                    th:data-name="${svc.name}" th:data-desc="${svc.description}"
+                                    th:data-price="${svc.price}" th:data-shortDesc="${svc.shortDescription}"
+                                    th:data-detailedDesc="${svc.detailedDescription}" th:data-duration="${svc.duration}"
+                                    th:data-process="${svc.process}" th:data-benefits="${svc.benefits}"
+                                    th:data-suitableFor="${svc.suitableFor}" th:data-notes="${svc.notes}"
+                                    th:data-aftercare="${svc.aftercare}" onclick="editModal(this)"><i
+                                        class="fa-solid fa-pen"></i></button>
+                                <a th:href="@{'/admin/services/delete/' + ${svc.id}}"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa dịch vụ này?');"><i
+                                        class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr th:if="${services == null || services.isEmpty()}">
+                            <td colspan="5" class="text-center py-4 text-muted">Chưa có dịch vụ nào trong hệ thống.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Dịch Vụ -->
+    <div class="modal fade" id="serviceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form th:action="@{/admin/services/save}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="svc-id">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold">Thông Tin Dịch Vụ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tên Dịch Vụ <span class="text-danger">*</span></label>
+                                <input type="text" name="name" id="svc-name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="number" name="price" id="svc-price" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Thời Gian Thực Hiện</label>
+                                <input type="text" name="duration" id="svc-duration" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Hình Ảnh (Tải lên file)</label>
+                                <input type="file" name="imageFile" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Mô Tả Ngắn</label>
+                                <textarea name="shortDescription" id="svc-shortDesc" class="form-control"
+                                    rows="2"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Mô Tả Chi Tiết</label>
+                                <textarea name="detailedDescription" id="svc-detailedDesc" class="form-control"
+                                    rows="3"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Quy Trình</label>
+                                <textarea name="process" id="svc-process" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Lợi Ích</label>
+                                <textarea name="benefits" id="svc-benefits" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Đối Tượng Phù Hợp</label>
+                                <textarea name="suitableFor" id="svc-suitableFor" class="form-control"
+                                    rows="2"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Lưu Ý & Chăm sóc</label>
+                                <textarea name="notes" id="svc-notes" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Chăm Sóc Sau Điều Trị</label>
+                                <textarea name="aftercare" id="svc-aftercare" class="form-control" rows="2"
+                                    placeholder="Dặn dò chế độ ăn uống, vệ sinh, tái khám..."></textarea>
+                            </div>
+                            <input type="hidden" name="description" id="svc-desc">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary px-4">Lưu Lại</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const serviceModal = new bootstrap.Modal(document.getElementById('serviceModal'));
+
+        function openModal() {
+            document.getElementById('svc-id').value = '';
+            document.getElementById('svc-name').value = '';
+            document.getElementById('svc-desc').value = '';
+            document.getElementById('svc-price').value = '';
+            document.getElementById('svc-duration').value = '';
+            document.getElementById('svc-shortDesc').value = '';
+            document.getElementById('svc-detailedDesc').value = '';
+            document.getElementById('svc-process').value = '';
+            document.getElementById('svc-benefits').value = '';
+            document.getElementById('svc-suitableFor').value = '';
+            document.getElementById('svc-notes').value = '';
+            document.getElementById('svc-aftercare').value = '';
+            serviceModal.show();
+        }
+
+        function editModal(btn) {
+            document.getElementById('svc-id').value = btn.getAttribute('data-id');
+            document.getElementById('svc-name').value = btn.getAttribute('data-name');
+            document.getElementById('svc-desc').value = btn.getAttribute('data-desc');
+            document.getElementById('svc-price').value = btn.getAttribute('data-price');
+            document.getElementById('svc-duration').value = btn.getAttribute('data-duration') || '';
+            document.getElementById('svc-shortDesc').value = btn.getAttribute('data-shortDesc') || '';
+            document.getElementById('svc-detailedDesc').value = btn.getAttribute('data-detailedDesc') || '';
+            document.getElementById('svc-process').value = btn.getAttribute('data-process') || '';
+            document.getElementById('svc-benefits').value = btn.getAttribute('data-benefits') || '';
+            document.getElementById('svc-suitableFor').value = btn.getAttribute('data-suitableFor') || '';
+            document.getElementById('svc-notes').value = btn.getAttribute('data-notes') || '';
+            document.getElementById('svc-aftercare').value = btn.getAttribute('data-aftercare') || '';
+            serviceModal.show();
+        }
+    </script>
+</body>
+
+</html>

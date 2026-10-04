@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Thống Kê - C7 Smile Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #0d9b7a; --primary-dark: #0a6e5c; --primary-light: #14b895;
+            --sidebar-bg: #1a1d23; --sidebar-active: rgba(13,155,122,0.15);
+        }
+        body { font-family:'Inter',sans-serif; background:#f4f7fa; margin:0; color:#2d3748; }
+        
+        .sidebar {
+            min-height:100vh; background:var(--sidebar-bg); color:#a0aab5;
+            position:fixed; width:260px; z-index:100; border-right:1px solid rgba(255,255,255,0.05);
+        }
+        .sidebar-header { padding:24px 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-header i { font-size:1.4rem; color:var(--primary-light); }
+        .sidebar-header h5 { margin:0; color:white; font-weight:700; font-size:1.1rem; }
+        .sidebar-user { padding:16px 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-avatar { width:40px; height:40px; border-radius:50%; background:#e53e3e; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+        .sidebar-user-info .name { color:white; font-size:0.9rem; font-weight:600; }
+        .sidebar-user-info .role { font-size:0.75rem; color:#fc8181; background:rgba(229,62,62,0.15); padding:2px 8px; border-radius:10px; display:inline-block; margin-top:2px; }
+        .sidebar-nav { padding:12px 0; }
+        .sidebar-nav a { display:flex; align-items:center; gap:12px; padding:11px 20px; color:#a0aab5; text-decoration:none; font-size:0.9rem; transition:all 0.2s; border-left:3px solid transparent; }
+        .sidebar-nav a:hover { background:rgba(255,255,255,0.05); color:white; }
+        .sidebar-nav a.active { background:var(--sidebar-active); color:var(--primary-light); border-left-color:var(--primary-light); font-weight:600; }
+        .sidebar-nav a i { width:20px; text-align:center; }
+        .sidebar-divider { height:1px; background:rgba(255,255,255,0.06); margin:8px 16px; }
+        .sidebar-section-label { padding:8px 20px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:1.5px; color:#5a6370; font-weight:600; }
+        .logout-link { color:#e53e3e !important; }
+
+        .main-content { margin-left:260px; padding:30px; }
+
+        /* KPI Cards */
+        .kpi-card {
+            background: white; border-radius: 16px; padding: 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #edf2f7;
+            position: relative; overflow: hidden; transition: all 0.3s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .kpi-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+        }
+        .kpi-card.teal::before { background: var(--primary); }
+        .kpi-card.blue::before { background: #3182ce; }
+        .kpi-card.orange::before { background: #dd6b20; }
+        .kpi-card.purple::before { background: #805ad5; }
+
+        .kpi-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+        }
+        .kpi-title { font-size: 0.85rem; color: #718096; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 1.75rem; font-weight: 800; color: #1a202c; margin: 4px 0 0; }
+        
+        .section-card {
+            background: white; border-radius: 16px; padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #edf2f7; margin-bottom: 24px;
+        }
+        .section-card h5 { font-weight: 700; color: #2d3748; margin-bottom: 20px; font-size: 1.1rem; }
+
+        /* Filter Pills */
+        .filter-btn-group .btn {
+            border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 16px;
+        }
+        .filter-btn-group .btn.active {
+            background: var(--primary); border-color: var(--primary); color: white;
+        }
+
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-PAID { background: #c6f6d5; color: #22543d; }
+        .status-PARTIALLY_PAID { background: #feebc8; color: #c05621; }
+        .status-UNPAID { background: #fed7d7; color: #c53030; }
+
+        @media print {
+            .sidebar, .filter-bar, .no-print { display: none !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; }
+            .kpi-card, .section-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+        }
+
+        @media (max-width:768px) {
+            .sidebar { position:relative; width:100%; min-height:auto; }
+            .main-content { margin-left:0; padding:15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fa-solid fa-tooth"></i><h5>C7 Admin</h5></div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" th:text="${loggedInUser != null ? loggedInUser.fullName.substring(0,1).toUpperCase() : 'A'}">A</div>
+            <div class="sidebar-user-info">
+                <div class="name" th:text="${loggedInUser != null ? loggedInUser.fullName : 'Admin'}">Admin</div>
+                <span class="role">Admin</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Quản lý chính</div>
+            <a th:href="@{/admin/dashboard}"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a>
+            <a th:href="@{/admin/reports}" class="active"><i class="fa-solid fa-chart-pie"></i> Báo Cáo Thống Kê</a>
+            <a th:href="@{/admin/services}"><i class="fa-solid fa-tooth"></i> Dịch Vụ</a>
+            <a th:href="@{/admin/dentists}"><i class="fa-solid fa-user-doctor"></i> Bác Sĩ</a>
+            <a th:href="@{/admin/patients}"><i class="fa-solid fa-users"></i> Bệnh Nhân</a>
+            <a th:href="@{/admin/appointments}"><i class="fa-solid fa-calendar-check"></i> Lịch Hẹn</a>
+            <div class="sidebar-divider"></div>
+            <a th:href="@{/logout}" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất</a>
+        </nav>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-pie text-success me-2"></i>Báo Cáo & Thống Kê</h2>
+                <p class="text-muted mb-0">Theo dõi doanh thu, lịch hẹn và hiệu suất hoạt động phòng khám C7 Smile Clinic</p>
+            </div>
+            <div class="d-flex align-items-center gap-2 no-print">
+                <button onclick="window.print()" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-print me-1"></i> In Báo Cáo
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="section-card p-3 mb-4 filter-bar">
+            <form th:action="@{/admin/reports}" method="get" class="row g-2 align-items-center">
+                <div class="col-lg-6">
+                    <div class="filter-btn-group d-flex flex-wrap gap-1">
+                        <a th:href="@{/admin/reports(range='today')}" th:classappend="${range == 'today' ? 'active' : 'btn-light border'}" class="btn">Hôm Nay</a>
+                        <a th:href="@{/admin/reports(range='week')}" th:classappend="${range == 'week' ? 'active' : 'btn-light border'}" class="btn">Tuần Này</a>
+                        <a th:href="@{/admin/reports(range='month')}" th:classappend="${range == 'month' ? 'active' : 'btn-light border'}" class="btn">Tháng Này</a>
+                        <a th:href="@{/admin/reports(range='year')}" th:classappend="${range == 'year' ? 'active' : 'btn-light border'}" class="btn">Năm Nay</a>
+                        <a th:href="@{/admin/reports(range='all')}" th:classappend="${range == 'all' ? 'active' : 'btn-light border'}" class="btn">Tất Cả</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="d-flex align-items-center gap-2 justify-content-lg-end">
+                        <input type="hidden" name="range" value="custom">
+                        <input type="date" name="startDate" th:value="${startDate}" class="form-control form-control-sm" style="max-width:145px;" required>
+                        <span class="text-muted small">đến</span>
+                        <input type="date" name="endDate" th:value="${endDate}" class="form-control form-control-sm" style="max-width:145px;" required>
+                        <button type="submit" class="btn btn-sm btn-primary" style="background:var(--primary); border:none;">
+                            <i class="fa-solid fa-filter me-1"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Doanh thu thực thu -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card teal">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">Thực Thu (Đã nhận)</div>
+                            <div class="kpi-value text-success" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                        </div>
+                        <div class="kpi-icon" style="background:rgba(13,155,122,0.1); color:var(--primary);">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        Tổng HĐ: <strong th:text="${#numbers.formatDecimal(totalInvoiceAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Công nợ còn lại -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card orange">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">Công Nợ Chưa Thu</div>
+                            <div class="kpi-value text-danger" th:text="${#numbers.formatDecimal(totalDebt, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                        </div>
+                        <div class="kpi-icon" style="background:rgba(237,137,54,0.1); color:#dd6b20;">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        Hóa đơn hoàn tất: <strong th:text="${paidInvoiceCount} + '/' + ${invoiceCount}">0/0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Tổng lượt khám -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card blue">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">Lượt Khám / Hẹn</div>
+                            <div class="kpi-value text-primary" th:text="${totalAppointments}">0</div>
+                        </div>
+                        <div class="kpi-icon" style="background:rgba(49,130,206,0.1); color:#3182ce;">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        Đã hoàn tất khám: <strong class="text-success" th:text="${completedAppointments}">0</strong> ca
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Bệnh nhân mới -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card purple">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">Bệnh Nhân Mới</div>
+                            <div class="kpi-value" style="color:#805ad5;" th:text="${newPatients}">0</div>
+                        </div>
+                        <div class="kpi-icon" style="background:rgba(128,90,213,0.1); color:#805ad5;">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        Web: <strong th:text="${onlineCount}">0</strong> | Vãng lai: <strong th:text="${walkInCount}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Left: Revenue & Appointments trend line chart -->
+            <div class="col-lg-8">
+                <div class="section-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fa-solid fa-chart-line text-primary me-2"></i>Xu Hướng Doanh Thu 7 Ngày Gần Nhất</h5>
+                        <span class="badge bg-light text-muted border">Đơn vị: VNĐ</span>
+                    </div>
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Doughnut Chart Payment Method Breakdown -->
+            <div class="col-lg-4">
+                <div class="section-card h-100">
+                    <h5 class="mb-3"><i class="fa-solid fa-wallet text-warning me-2"></i>Phương Thức Thu Tiền</h5>
+                    <div style="position: relative; height: 230px;" class="d-flex justify-content-center">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                    <div class="mt-3 pt-3 border-top small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fa-solid fa-circle text-success me-1"></i> Chuyển khoản VietQR:</span>
+                            <strong th:text="${#numbers.formatDecimal(transferRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-primary me-1"></i> Tiền mặt:</span>
+                            <strong th:text="${#numbers.formatDecimal(cashRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Section: Top Services & Doctors Performance -->
+        <div class="row g-4 mb-4">
+            <!-- Top Services -->
+            <div class="col-lg-6">
+                <div class="section-card h-100 p-0 overflow-hidden">
+                    <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa-solid fa-tooth text-success me-2"></i>Top Dịch Vụ Nha Khoa</h5>
+                        <span class="badge bg-success" th:text="${topServices != null ? topServices.size() : 0} + ' dịch vụ'"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Dịch Vụ</th>
+                                    <th class="text-center">Số Ca</th>
+                                    <th class="text-end">Doanh Số</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${topServices == null || topServices.isEmpty()}">
+                                    <td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu dịch vụ trong kỳ này.</td>
+                                </tr>
+                                <tr th:each="svc, stat : ${topServices}">
+                                    <td>
+                                        <div class="fw-bold text-dark" th:text="${svc.name}"></div>
+                                        <small class="text-muted" th:text="${#numbers.formatDecimal(svc.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ/lần'"></small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary-subtle text-primary fw-bold" th:text="${svc.count} + ' lượt'"></span>
+                                    </td>
+                                    <td class="text-end fw-bold text-success" th:text="${#numbers.formatDecimal(svc.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Performance -->
+            <div class="col-lg-6">
+                <div class="section-card h-100 p-0 overflow-hidden">
+                    <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa-solid fa-user-doctor text-info me-2"></i>Hiệu Suất Đội Ngũ Bác Sĩ</h5>
+                        <span class="badge bg-info" th:text="${doctorStats != null ? doctorStats.size() : 0} + ' bác sĩ'"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Bác Sĩ</th>
+                                    <th class="text-center">Tổng Ca</th>
+                                    <th class="text-center">Đã Khám</th>
+                                    <th class="text-end">Doanh Thu Ước Tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${doctorStats == null || doctorStats.isEmpty()}">
+                                    <td colspan="4" class="text-center py-4 text-muted">Chưa có dữ liệu bác sĩ trong kỳ này.</td>
+                                </tr>
+                                <tr th:each="doc : ${doctorStats}">
+                                    <td>
+                                        <div class="fw-bold text-dark" th:text="${doc.name}"></div>
+                                        <small class="text-muted" th:text="${doc.specialty}"></small>
+                                    </td>
+                                    <td class="text-center fw-bold" th:text="${doc.appointmentCount}"></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success-subtle text-success fw-bold" th:text="${doc.completedCount}"></span>
+                                    </td>
+                                    <td class="text-end fw-bold text-primary" th:text="${#numbers.formatDecimal(doc.estimatedRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Invoices Table -->
+        <div class="section-card p-0 overflow-hidden mb-4">
+            <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>Hóa Đơn Phát Sinh Trong Kỳ</h5>
+                <span class="text-muted small">10 hóa đơn mới nhất</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Bệnh Nhân</th>
+                            <th>Dịch Vụ</th>
+                            <th class="text-end">Tổng Tiền</th>
+                            <th class="text-end">Đã Thu</th>
+                            <th class="text-center">Trạng Thái</th>
+                            <th>Ngày Tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${recentInvoices == null || recentInvoices.isEmpty()}">
+                            <td colspan="7" class="text-center py-4 text-muted">Không có hóa đơn nào trong khoảng thời gian này.</td>
+                        </tr>
+                        <tr th:each="inv : ${recentInvoices}">
+                            <td><strong th:text="'#' + ${inv.id}"></strong></td>
+                            <td th:text="${inv.patient != null ? inv.patient.fullName : 'Khách vãng lai'}"></td>
+                            <td th:text="${inv.appointment != null && inv.appointment.service != null ? inv.appointment.service.name : 'Dịch vụ'}"></td>
+                            <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(inv.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            <td class="text-end text-success fw-bold" th:text="${#numbers.formatDecimal(inv.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            <td class="text-center">
+                                <span th:class="'status-badge status-' + ${inv.status}" th:text="${inv.status}"></span>
+                            </td>
+                            <td class="small text-muted" th:text="${#temporals.format(inv.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js Configuration -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const chartLabels = /*[[${chartLabels}]]*/ [];
+        const chartRevenue = /*[[${chartRevenue}]]*/ [];
+        const chartAppts = /*[[${chartAppts}]]*/ [];
+        const cashRevenue = /*[[${cashRevenue}]]*/ 0;
+        const transferRevenue = /*[[${transferRevenue}]]*/ 0;
+
+        // 1. Line/Bar Chart: Revenue & Appointments Trend
+        const ctxTrend = document.getElementById('revenueTrendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        type: 'line',
+                        label: 'Doanh Thu (VNĐ)',
+                        data: chartRevenue,
+                        borderColor: '#0d9b7a',
+                        backgroundColor: 'rgba(13, 155, 122, 0.1)',
+                        fill: true,
+                        tension: 0.35,
+                        yAxisID: 'y',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#0d9b7a',
+                        pointRadius: 5
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Số Lượt Khám',
+                        data: chartAppts,
+                        backgroundColor: 'rgba(66, 153, 225, 0.6)',
+                        borderRadius: 6,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        ticks: {
+                            callback: function(val) {
+                                if (val >= 1000000) return (val / 1000000).toFixed(1) + ' tr';
+                                if (val >= 1000) return (val / 1000).toFixed(0) + ' k';
+                                return val;
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 2. Doughnut Chart: Payment Method Breakdown
+        const ctxPay = document.getElementById('paymentMethodChart').getContext('2d');
+        const totalPay = cashRevenue + transferRevenue;
+        new Chart(ctxPay, {
+            type: 'doughnut',
+            data: {
+                labels: ['Chuyển khoản VietQR', 'Tiền mặt'],
+                datasets: [{
+                    data: totalPay > 0 ? [transferRevenue, cashRevenue] : [1, 0],
+                    backgroundColor: ['#10b981', '#3b82f6'],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.parsed;
+                                return totalPay > 0 ? context.label + ': ' + Number(val).toLocaleString('vi-VN') + ' đ' : 'Chưa có giao dịch';
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

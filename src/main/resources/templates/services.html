@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dịch Vụ - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}" class="active">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:if="${userRole == 'ADMIN'}" th:href="@{/admin/dashboard}" class="btn btn-login"><i class="fa-solid fa-gauge me-1"></i> Quản Trị</a>
+                    <a th:if="${userRole == 'DOCTOR'}" th:href="@{/doctor/dashboard}" class="btn btn-login"><i class="fa-solid fa-user-doctor me-1"></i> Bác Sĩ</a>
+                    <a th:if="${userRole == 'RECEPTIONIST'}" th:href="@{/reception/appointments}" class="btn btn-login"><i class="fa-solid fa-headset me-1"></i> Lễ Tân</a>
+                    <a th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RECEPTIONIST'}" th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user me-1"></i> Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Dịch Vụ Của Chúng Tôi</h1>
+            <p>Khám phá các dịch vụ nha khoa chất lượng cao tại C7 Smile Clinic</p>
+        </div>
+    </div>
+
+    <div class="container content-section">
+        <h2 style="color: var(--primary-color); margin-bottom: 20px;">Danh Sách Dịch Vụ</h2>
+        <div class="services-scroll-container">
+            <!-- Render each service -->
+            <div class="service-card" th:each="svc : ${services}">
+                <img th:if="${svc.imageUrl}" th:src="${svc.imageUrl}" class="service-img" alt="Service Image">
+                <div th:unless="${svc.imageUrl}" class="service-img" style="display:flex; align-items:center; justify-content:center; color:#ccc;">
+                    <i class="fa-solid fa-tooth fa-3x"></i>
+                </div>
+                <div class="service-info">
+                    <h3 th:text="${svc.name}"></h3>
+                    <p th:text="${svc.description}"></p>
+                    <div class="price" th:text="${#numbers.formatDecimal(svc.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></div>
+                    <a th:href="@{'/dich-vu/' + ${svc.slug != null ? svc.slug : svc.id}}" class="btn btn-login" style="margin-top: 15px; text-align: center; display: block; border-color: var(--primary-color); color: var(--primary-color);">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic.</p>
+        </div>
+    </footer>
+</body>
+</html>

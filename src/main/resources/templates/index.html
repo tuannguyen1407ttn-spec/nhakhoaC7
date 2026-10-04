@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="C7 Smile Clinic - Phòng khám nha khoa uy tín tại Hà Nội. Dịch vụ niềng răng, bọc sứ, implant, tẩy trắng răng chất lượng cao.">
+    <title>C7 Smile Clinic - Nha Khoa Uy Tín Hàng Đầu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="active">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch</a></li>
+                    
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    
+                    <li th:if="${loggedInUser != null}"><a th:if="${userRole == 'ADMIN'}" th:href="@{/admin/dashboard}" class="btn btn-login"><i class="fa-solid fa-gauge me-1"></i> Quản Trị</a>
+                    <a th:if="${userRole == 'DOCTOR'}" th:href="@{/doctor/dashboard}" class="btn btn-login"><i class="fa-solid fa-user-doctor me-1"></i> Bác Sĩ</a>
+                    <a th:if="${userRole == 'RECEPTIONIST'}" th:href="@{/reception/appointments}" class="btn btn-login"><i class="fa-solid fa-headset me-1"></i> Lễ Tân</a>
+                    <a th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RECEPTIONIST'}" th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user me-1"></i> Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: #e74c3c; border: 2px solid #e74c3c;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ========================================
+         HERO SECTION
+         ======================================== -->
+    <section class="hero" id="hero">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-award"></i> Phòng khám tiêu chuẩn quốc tế
+                </div>
+                <h1>Nụ Cười <span class="highlight">Hoàn Mỹ</span>,<br>Tự Tin Tỏa Sáng</h1>
+                <p>Trải nghiệm dịch vụ nha khoa hàng đầu với đội ngũ bác sĩ chuyên môn cao, công nghệ hiện đại và quy trình an toàn tuyệt đối tại C7 Smile Clinic.</p>
+                <div class="hero-buttons">
+                    <a th:href="@{/booking}" class="btn btn-primary btn-lg"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch Ngay</a>
+                    <a th:href="@{/services}" class="btn btn-outline-light btn-lg"><i class="fa-solid fa-teeth"></i> Xem Dịch Vụ</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img th:src="@{/images/hero-banner.jpg}" alt="Phòng khám nha khoa C7 Smile Clinic hiện đại">
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner" id="stats">
+        <div class="container stats-container">
+            <div class="stat-item anim-item">
+                <h3>999k+</h3>
+                <p>Khách Hàng</p>
+            </div>
+            <div class="stat-item anim-item">
+                <h3>5 <i class="fa-solid fa-star"></i></h3>
+                <p>Chất Lượng Dịch Vụ</p>
+            </div>
+            <div class="stat-item anim-item">
+                <h3>100%</h3>
+                <p>Khách Hàng Hài Lòng</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Moving Ads Banner -->
+    <section class="moving-banner-wrapper">
+        <div class="moving-banner">
+            <div class="banner-slide">🦷 Khám tổng quát MIỄN PHÍ!</div>
+            <div class="banner-slide">💎 Niềng răng trong suốt giảm 20%</div>
+            <div class="banner-slide">✨ Tẩy trắng răng công nghệ mới nhất</div>
+            <div class="banner-slide">🏥 Trồng răng Implant an toàn, không đau</div>
+            <div class="banner-slide">🦷 Khám tổng quát MIỄN PHÍ!</div>
+            <div class="banner-slide">💎 Niềng răng trong suốt giảm 20%</div>
+            <div class="banner-slide">✨ Tẩy trắng răng công nghệ mới nhất</div>
+            <div class="banner-slide">🏥 Trồng răng Implant an toàn, không đau</div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FEATURED SERVICES - Dynamic from DB
+         ======================================== -->
+    <section class="featured-services" id="featured-services">
+        <div class="container">
+            <div class="section-header anim-item">
+                <div class="section-label"><i class="fa-solid fa-star"></i> Dịch vụ của chúng tôi</div>
+                <h2 class="section-title">Các Dịch Vụ <span class="accent">Nổi Bật</span></h2>
+                <p class="section-desc">Khám phá các dịch vụ nha khoa chất lượng cao, ứng dụng công nghệ tiên tiến nhất giúp bạn sở hữu nụ cười hoàn hảo.</p>
+            </div>
+
+            <div class="services-grid">
+                <!-- Dynamic service cards from database -->
+                <div class="service-card-featured anim-item" th:each="svc : ${services}">
+                    <div class="card-img-wrapper">
+                        <img th:if="${svc.imageUrl}" th:src="${svc.imageUrl}" th:alt="${svc.name}">
+                        <div th:unless="${svc.imageUrl}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e9ecef,#dee2e6);color:#adb5bd;">
+                            <i class="fa-solid fa-tooth fa-3x"></i>
+                        </div>
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-body">
+                        <h3 th:text="${svc.name}">Tên dịch vụ</h3>
+                        <p th:text="${svc.shortDescription != null ? svc.shortDescription : svc.description}">Mô tả dịch vụ</p>
+                        <div class="card-footer-row">
+                            <span class="card-price" th:if="${svc.price != null}" th:text="${#numbers.formatDecimal(svc.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá</span>
+                            <a th:href="@{'/dich-vu/' + ${svc.slug != null ? svc.slug : svc.id}}" class="btn-card">Xem chi tiết <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View all services button -->
+            <div class="text-center" style="margin-top: 48px;">
+                <a th:href="@{/services}" class="btn btn-booking btn-lg">Xem Tất Cả Dịch Vụ <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         MODERN TECHNOLOGY SECTION
+         ======================================== -->
+    <section class="technology-section" id="technology">
+        <div class="container">
+            <div class="section-header anim-item text-center">
+                <div class="section-label"><i class="fa-solid fa-microchip"></i> Công nghệ nổi bật</div>
+                <h2 class="section-title">Công Nghệ <span class="accent">Hiện Đại</span> Hàng Đầu</h2>
+                <p class="section-desc">Chúng tôi ứng dụng những công nghệ nha khoa tiên tiến nhất trên thế giới, đảm bảo kết quả điều trị chính xác, an toàn và nhanh chóng.</p>
+            </div>
+
+            <!-- Tech Item 1: CBCT -->
+            <div class="tech-row anim-item">
+                <div class="tech-image">
+                    <img th:src="@{/images/tech-cbct.jpg}" alt="Máy chụp CT Cone Beam 3D">
+                    <div class="tech-image-badge"><i class="fa-solid fa-cube"></i> 3D Imaging</div>
+                </div>
+                <div class="tech-content">
+                    <div class="tech-number">01</div>
+                    <h3>Chụp CT Cone Beam 3D (CBCT)</h3>
+                    <p>Công nghệ chụp X-quang 3 chiều thế hệ mới, cho hình ảnh chi tiết với độ phân giải cao gấp 100 lần phim thường. Giúp bác sĩ chẩn đoán chính xác cấu trúc xương hàm, vị trí dây thần kinh và lập kế hoạch điều trị tối ưu.</p>
+                    <ul class="tech-features">
+                        <li><i class="fa-solid fa-check-circle"></i> Chẩn đoán chính xác 99.9% cấu trúc xương hàm</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Liều phóng xạ thấp, an toàn cho mọi đối tượng</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Thời gian chụp chỉ 15 giây</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Hỗ trợ lập kế hoạch cấy ghép Implant, chỉnh nha</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tech Item 2: CAD/CAM -->
+            <div class="tech-row tech-row-reverse anim-item">
+                <div class="tech-image">
+                    <img th:src="@{/images/tech-cadcam.jpg}" alt="Hệ thống CAD/CAM nha khoa kỹ thuật số">
+                    <div class="tech-image-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Digital</div>
+                </div>
+                <div class="tech-content">
+                    <div class="tech-number">02</div>
+                    <h3>Hệ Thống CAD/CAM Kỹ Thuật Số</h3>
+                    <p>Scan lấy dấu răng kỹ thuật số bằng đầu dò quang học, thay thế hoàn toàn phương pháp lấy dấu truyền thống bằng thìa. Thiết kế và chế tác răng sứ ngay tại phòng khám chỉ trong 1 buổi hẹn duy nhất.</p>
+                    <ul class="tech-features">
+                        <li><i class="fa-solid fa-check-circle"></i> Scan 3D trong miệng chỉ mất 3 phút</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Độ chính xác lên đến 20 micromet</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Hoàn thành răng sứ trong 1 buổi hẹn</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Không cần lấy dấu bằng silicon khó chịu</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tech Item 3: Laser -->
+            <div class="tech-row anim-item">
+                <div class="tech-image">
+                    <img th:src="@{/images/tech-laser.jpg}" alt="Công nghệ Laser nha khoa">
+                    <div class="tech-image-badge"><i class="fa-solid fa-bolt"></i> Laser</div>
+                </div>
+                <div class="tech-content">
+                    <div class="tech-number">03</div>
+                    <h3>Công Nghệ Laser Diode Nha Khoa</h3>
+                    <p>Laser Diode thế hệ mới ứng dụng trong điều trị nha chu, phẫu thuật mô mềm, tẩy trắng răng và giảm ê buốt. Với bước sóng chuyên biệt, laser hoạt động chính xác trên mô đích mà không ảnh hưởng đến các mô lành xung quanh.</p>
+                    <ul class="tech-features">
+                        <li><i class="fa-solid fa-check-circle"></i> Điều trị không đau, ít chảy máu</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Khả năng diệt khuẩn sâu đến 99.7%</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Phục hồi mô nhanh gấp 3 lần thường</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Ứng dụng đa năng trong nha khoa</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         WHY CHOOSE US SECTION
+         ======================================== -->
+    <section class="why-choose-us section-padding" id="why-choose-us">
+        <div class="container">
+            <div class="why-header text-center anim-item">
+                <div class="section-label"><i class="fa-solid fa-shield-halved"></i> Cam kết của chúng tôi</div>
+                <h2 class="section-title">Vì Sao Hàng Nghìn Khách Hàng <span class="accent">Tin Tưởng</span> Chúng Tôi?</h2>
+                <p class="section-desc">Chất lượng – Tận tâm – An toàn là ba giá trị mà chúng tôi luôn theo đuổi.</p>
+            </div>
+            
+            <div class="why-grid">
+                <div class="why-image anim-item">
+                    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Đội ngũ bác sĩ nha khoa đang điều trị">
+                </div>
+                <div class="why-features">
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                        <div class="feature-text">
+                            <h4>Bác sĩ chuyên môn cao</h4>
+                            <p>Đội ngũ bác sĩ giàu kinh nghiệm, tận tâm và luôn cập nhật kiến thức mới.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-microscope"></i></div>
+                        <div class="feature-text">
+                            <h4>Thiết bị hiện đại</h4>
+                            <p>Ứng dụng công nghệ tiên tiến giúp chẩn đoán chính xác và điều trị hiệu quả.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="feature-text">
+                            <h4>An toàn tuyệt đối</h4>
+                            <p>Quy trình vô trùng được kiểm soát chặt chẽ, đảm bảo an toàn cho khách hàng.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                        <div class="feature-text">
+                            <h4>Chi phí minh bạch</h4>
+                            <p>Tư vấn rõ ràng, báo giá cụ thể, hạn chế tối đa phí phát sinh.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-heart"></i></div>
+                        <div class="feature-text">
+                            <h4>Dịch vụ tận tâm</h4>
+                            <p>Luôn lắng nghe, hỗ trợ và đồng hành cùng khách hàng.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item anim-item">
+                        <div class="feature-icon"><i class="fa-solid fa-couch"></i></div>
+                        <div class="feature-text">
+                            <h4>Không gian tiện nghi</h4>
+                            <p>Phòng khám sạch sẽ, hiện đại, tạo cảm giác thoải mái và thư giãn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         TESTIMONIALS SECTION
+         ======================================== -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header text-center anim-item">
+                <div class="section-label"><i class="fa-solid fa-quote-left"></i> Phản hồi khách hàng</div>
+                <h2 class="section-title">Khách Hàng Nói Gì <span class="accent">Về Chúng Tôi</span>?</h2>
+                <p class="section-desc">Niềm tin và sự hài lòng của khách hàng là thước đo thành công lớn nhất của chúng tôi.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card anim-item">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">"Tôi rất hài lòng với dịch vụ niềng răng tại C7 Smile. Bác sĩ tư vấn nhiệt tình, tay nghề cao. Sau 18 tháng, hàm răng tôi đã đẹp hơn rất nhiều!"</p>
+                    <div class="author">
+                        <div class="author-avatar">TH</div>
+                        <div class="author-info">
+                            <h4>Trần Thu Hà</h4>
+                            <span>Niềng răng thẩm mỹ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card anim-item">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">"Phòng khám rất sạch sẽ và hiện đại. Nhân viên thân thiện, bác sĩ giải thích chi tiết từng bước. Tôi đã giới thiệu cho cả gia đình đến đây."</p>
+                    <div class="author">
+                        <div class="author-avatar">NM</div>
+                        <div class="author-info">
+                            <h4>Nguyễn Minh Đức</h4>
+                            <span>Bọc răng sứ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card anim-item">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">"Trồng Implant tại C7 Smile không đau như tôi tưởng. Bác sĩ rất nhẹ nhàng và chuyên nghiệp. Kết quả tuyệt vời, ăn nhai thoải mái như răng thật!"</p>
+                    <div class="author">
+                        <div class="author-avatar">LP</div>
+                        <div class="author-info">
+                            <h4>Lê Phương Anh</h4>
+                            <span>Trồng răng Implant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         CTA BANNER
+         ======================================== -->
+    <section class="cta-banner anim-item" id="cta-booking">
+        <div class="cta-content">
+            <h2>Sẵn Sàng Có Nụ Cười Đẹp?</h2>
+            <p>Đặt lịch khám ngay hôm nay để được tư vấn miễn phí bởi đội ngũ bác sĩ hàng đầu của chúng tôi.</p>
+            <a th:href="@{/booking}" class="btn-cta"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch Khám Miễn Phí</a>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="#" class="logo-footer">
+                        <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+                    </a>
+                    <p>Phòng khám nha khoa tiêu chuẩn quốc tế. Chúng tôi cam kết mang đến dịch vụ chăm sóc răng miệng chất lượng cao, an toàn và tận tâm nhất.</p>
+                    <div class="footer-social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Truy Cập Nhanh</h3>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Trang Chủ</a></li>
+                        <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                        <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                        <li><a th:href="@{/booking}">Đặt Lịch Khám</a></li>
+                        <li><a th:href="@{/news}">Tin Tức</a></li>
+                        <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Hệ</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fa-solid fa-location-dot"></i><span>85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>Hotline: <strong>0879 742 058</strong></span></li>
+                        <li><i class="fa-regular fa-envelope"></i><span>info@c7smile.com</span></li>
+                        <li><i class="fa-regular fa-clock"></i><span>Thứ 2 - Thứ 7: 8:00 - 20:00<br>Chủ Nhật: 8:00 - 17:00</span></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Bản Đồ</h3>
+                    <div class="footer-map">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.6!2d105.76!3d21.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAzJzAwLjAiTiAxMDXCsDQ1JzM2LjAiRQ!5e0!3m2!1svi!2s!4v1600000000000" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. All rights reserved. | Thiết kế bởi C7 Team</p>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         ANIMATION SCRIPT
+         ======================================== -->
+    <script>
+    (function() {
+        /* ---- Scroll Reveal Animation ---- */
+        const animItems = document.querySelectorAll('.anim-item');
+        
+        const observerOptions = {
+            threshold: 0.12,
+            rootMargin: '0px 0px -40px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, idx) => {
+                if (entry.isIntersecting) {
+                    // Stagger animation based on sibling index
+                    const siblings = entry.target.parentElement.querySelectorAll('.anim-item');
+                    let sibIndex = Array.from(siblings).indexOf(entry.target);
+                    entry.target.style.transitionDelay = (sibIndex * 0.1) + 's';
+                    entry.target.classList.add('anim-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        animItems.forEach(item => observer.observe(item));
+
+        /* ---- Navbar Scroll Effect ---- */
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > 60) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+            lastScroll = currentScroll;
+        }, { passive: true });
+
+        /* ---- Counter Animation ---- */
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-item h3');
+            counters.forEach(counter => {
+                const text = counter.textContent.trim();
+                // Only animate numeric-ish values
+                const match = text.match(/^(\d+)/);
+                if (!match) return;
+                const target = parseInt(match[1]);
+                const suffix = text.replace(match[1], '');
+                let current = 0;
+                const increment = Math.ceil(target / 60);
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    counter.innerHTML = current + suffix;
+                }, 25);
+            });
+        }
+
+        // Trigger counter when stats section is visible
+        const statsSection = document.getElementById('stats');
+        if (statsSection) {
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounters();
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            statsObserver.observe(statsSection);
+        }
+
+        /* ---- Parallax on Hero ---- */
+        const hero = document.getElementById('hero');
+        if (hero) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY;
+                if (scrolled < window.innerHeight) {
+                    hero.style.setProperty('--parallax-y', scrolled * 0.3 + 'px');
+                }
+            }, { passive: true });
+        }
+
+        /* ---- Smooth anchor scroll ---- */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    })();
+    </script>
+
+</body>
+</html>

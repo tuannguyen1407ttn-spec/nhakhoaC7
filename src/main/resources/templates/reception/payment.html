@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thu Tiền Hóa Đơn - C7 Smile Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0d9b7a; --primary-dark: #0a6e5c; --primary-light: #14b895; --sidebar-bg: #1a1d23; --sidebar-active: rgba(13,155,122,0.15); }
+        body { font-family:'Inter',sans-serif; background:#f4f7fa; margin:0; }
+        .sidebar { min-height:100vh; background:var(--sidebar-bg); color:#a0aab5; position:fixed; width:260px; z-index:100; border-right:1px solid rgba(255,255,255,0.05); }
+        .sidebar-header { padding:24px 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-header i { font-size:1.4rem; color:var(--primary-light); }
+        .sidebar-header h5 { margin:0; color:white; font-weight:700; font-size:1.1rem; }
+        .sidebar-user { padding:16px 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-avatar { width:40px; height:40px; border-radius:50%; background:#805ad5; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+        .sidebar-user-info .name { color:white; font-size:0.9rem; font-weight:600; }
+        .sidebar-user-info .role { font-size:0.75rem; color:#e9d8fd; background:rgba(128,90,213,0.15); padding:2px 8px; border-radius:10px; display:inline-block; margin-top:2px; }
+        .sidebar-nav { padding:12px 0; }
+        .sidebar-nav a { display:flex; align-items:center; gap:12px; padding:11px 20px; color:#a0aab5; text-decoration:none; font-size:0.9rem; transition:all 0.2s; border-left:3px solid transparent; }
+        .sidebar-nav a:hover { background:rgba(255,255,255,0.05); color:white; }
+        .sidebar-nav a.active { background:var(--sidebar-active); color:var(--primary-light); border-left-color:var(--primary-light); font-weight:600; }
+        .sidebar-nav a i { width:20px; text-align:center; }
+        .sidebar-divider { height:1px; background:rgba(255,255,255,0.06); margin:8px 16px; }
+        .sidebar-section-label { padding:8px 20px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:1.5px; color:#5a6370; font-weight:600; }
+        .logout-link { color:#e53e3e !important; }
+
+        .main-content { margin-left:260px; padding:30px; }
+        .page-header { display:flex; align-items:center; gap:15px; margin-bottom:24px; }
+        .page-header h2 { font-weight:700; color:#2d3748; margin:0; }
+        .section-card { background:white; border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1px solid #edf2f7; margin-bottom:24px; }
+        
+        .invoice-box { background:#f8fafc; border:1px dashed #cbd5e0; border-radius:12px; padding:24px; text-align:center; }
+        .amount-big { font-size:2.5rem; font-weight:700; color:#2d3748; margin:10px 0; }
+        
+        .status-badge { padding:6px 12px; border-radius:30px; font-size:0.8rem; font-weight:600; }
+        .status-UNPAID { background:#fed7d7; color:#c53030; }
+        .status-PARTIALLY_PAID { background:#feebc8; color:#c05621; }
+        .status-PAID { background:#c6f6d5; color:#22543d; }
+
+        .qr-card-container {
+            background: linear-gradient(135deg, #f0fdf4 0%, #e6fffa 100%);
+            border: 2px dashed #0d9b7a;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .qr-img {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(13, 155, 122, 0.15);
+            background: white;
+            padding: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fa-solid fa-tooth"></i><h5>Lễ Tân C7</h5></div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" th:text="${loggedInUser != null ? loggedInUser.fullName.substring(0,1).toUpperCase() : 'L'}">L</div>
+            <div class="sidebar-user-info">
+                <div class="name" th:text="${loggedInUser != null ? loggedInUser.fullName : 'Lễ Tân'}">Lễ Tân</div>
+                <span class="role">Reception</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Nghiệp Vụ</div>
+            <a th:href="@{/reception/dashboard}"><i class="fa-solid fa-desktop"></i> Bàn Làm Việc</a>
+            <a th:href="@{/reception/walk-in}"><i class="fa-solid fa-user-plus"></i> Khách Vãng Lai</a>
+            <a th:href="@{/reception/appointments}"><i class="fa-solid fa-calendar-check"></i> Quản Lý Lịch Hẹn</a>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">Thu Ngân</div>
+            <a th:href="@{/reception/invoices}" class="active"><i class="fa-solid fa-file-invoice-dollar"></i> Lịch Sử Hóa Đơn</a>
+            <div class="sidebar-divider"></div>
+            <a th:href="@{/logout}" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <a th:href="@{/reception/dashboard}" class="btn btn-light border rounded-circle"><i class="fa-solid fa-arrow-left"></i></a>
+            <h2>Thu Tiền Hóa Đơn <span th:text="'#' + ${invoice.id}"></span></h2>
+        </div>
+        
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Left: Info & Payment form -->
+            <div class="col-lg-7">
+                <div class="section-card">
+                    <div class="invoice-box mb-4">
+                        <div class="text-uppercase fw-bold text-muted" style="letter-spacing:1px; font-size:0.85rem;">Tổng Số Tiền Cần Thu (Còn nợ)</div>
+                        <div class="amount-big text-danger" th:text="${#numbers.formatDecimal(invoice.totalAmount - invoice.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                        <div>
+                            Trạng thái hiện tại: <span th:class="'status-badge status-' + ${invoice.status}" th:text="${invoice.status}"></span>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${invoice.status != 'PAID'}">
+                        <h5 class="mb-3 fw-bold text-dark"><i class="fa-solid fa-cash-register me-2 text-primary"></i>Ghi nhận khoản thu</h5>
+                        
+                        <form th:action="@{/reception/payments/save}" method="post">
+                            <input type="hidden" name="invoiceId" th:value="${invoice.id}">
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Số tiền khách trả <span class="text-danger">*</span></label>
+                                    <input type="number" name="amount" id="paymentAmountInput" class="form-control form-control-lg fw-bold text-primary"
+                                           th:value="${invoice.totalAmount - invoice.paidAmount}"
+                                           th:max="${invoice.totalAmount - invoice.paidAmount}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Phương thức thanh toán <span class="text-danger">*</span></label>
+                                    <select name="method" id="paymentMethodSelect" class="form-select form-select-lg" onchange="toggleQrCard()">
+                                        <option value="CASH">💵 Tiền mặt</option>
+                                        <option value="TRANSFER" selected>📲 Chuyển khoản (VietQR)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- VietQR Card (Displayed when method is TRANSFER) -->
+                            <div id="vietqrBox" class="qr-card-container">
+                                <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                    <span class="badge bg-success px-3 py-2 fs-6"><i class="fa-solid fa-qrcode me-1"></i> Quét Mã VietQR Chuyển Khoản</span>
+                                </div>
+                                <p class="text-muted small mb-3">Khách dùng ứng dụng ngân hàng quét mã bên dưới để thanh toán</p>
+                                
+                                <div class="mb-3">
+                                    <img th:src="@{/images/qr-banking.png}" alt="Mã VietQR Chuyển Khoản" class="qr-img">
+                                </div>
+
+                                <div class="bg-white p-3 rounded-3 shadow-sm border d-inline-block text-start" style="min-width:280px; max-width:360px;">
+                                    <div class="d-flex justify-content-between mb-1 small">
+                                        <span class="text-muted">Chủ tài khoản:</span>
+                                        <strong class="text-dark">NGUYEN TRONG TUAN</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1 small">
+                                        <span class="text-muted">Số tài khoản / SĐT:</span>
+                                        <strong class="text-primary fs-6 font-monospace">0879742058</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Nội dung chuyển khoản:</span>
+                                        <strong class="text-danger font-monospace" th:text="'HD' + ${invoice.id}">HD01</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-lg btn-success w-100 fw-bold py-3 shadow-sm">
+                                <i class="fa-solid fa-check-circle me-2"></i> Xác nhận đã nhận được tiền & Hoàn tất
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div th:if="${invoice.status == 'PAID'}" class="alert alert-success text-center mb-0 p-4 rounded-4 shadow-sm border-0" style="background:#d1fae5;">
+                        <i class="fa-solid fa-circle-check text-success fa-3x mb-3"></i>
+                        <h4 class="fw-bold text-success mb-1">Hóa Đơn Đã Được Thanh Toán</h4>
+                        <p class="text-muted mb-0">Hóa đơn này đã hoàn tất đầy đủ 100% số tiền.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Details -->
+            <div class="col-lg-5">
+                <div class="section-card mb-4">
+                    <h5 class="mb-3"><i class="fa-solid fa-file-lines me-2"></i> Chi tiết hóa đơn</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Bệnh nhân</span>
+                            <strong th:text="${invoice.patient.fullName}"></strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Dịch vụ</span>
+                            <strong th:text="${invoice.appointment != null && invoice.appointment.service != null ? invoice.appointment.service.name : 'Dịch vụ nha khoa'}"></strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Tổng tiền</span>
+                            <strong th:text="${#numbers.formatDecimal(invoice.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Đã trả trước đó</span>
+                            <strong class="text-success" th:text="${#numbers.formatDecimal(invoice.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="section-card">
+                    <h5 class="mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i> Lịch sử thanh toán</h5>
+                    <div th:if="${payments == null || payments.isEmpty()}" class="text-muted text-center py-3">Chưa có giao dịch nào.</div>
+                    
+                    <div class="list-group">
+                        <div class="list-group-item border-0 border-bottom px-0 py-2" th:each="pmt : ${payments}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 text-success fw-bold" th:text="'+ ' + ${#numbers.formatDecimal(pmt.amount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></h6>
+                                <small class="text-muted" th:text="${#temporals.format(pmt.createdAt, 'HH:mm dd/MM/yyyy')}"></small>
+                            </div>
+                            <small class="text-secondary"><i class="fa-solid fa-tag me-1"></i><span th:text="${pmt.method == 'TRANSFER' ? 'Chuyển khoản VietQR' : (pmt.method == 'CASH' ? 'Tiền mặt' : pmt.method)}"></span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleQrCard() {
+            const methodSelect = document.getElementById('paymentMethodSelect');
+            const qrBox = document.getElementById('vietqrBox');
+            if (methodSelect && qrBox) {
+                if (methodSelect.value === 'TRANSFER') {
+                    qrBox.style.display = 'block';
+                } else {
+                    qrBox.style.display = 'none';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleQrCard();
+        });
+    </script>
+</body>
+</html>

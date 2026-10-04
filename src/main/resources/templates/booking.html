@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Lịch Khám - C7 Smile Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        :root {
+            --primary: #0d9b7a; --primary-dark: #0a6e5c; --primary-light: #14b895;
+            --bg: #f4f7fa; --text: #2d3748; --text-light: #718096;
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); }
+        
+        .booking-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white; padding: 60px 0 40px; text-align: center;
+        }
+        .booking-header h1 { font-weight: 700; margin-bottom: 12px; }
+        .booking-header p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+        
+        .booking-container { max-width: 800px; margin: -30px auto 60px; position: relative; z-index: 10; }
+        .booking-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: visible; }
+        
+        /* Progress Steps */
+        .steps-container { display: flex; justify-content: space-between; padding: 30px 40px; border-bottom: 1px solid #edf2f7; background: #f8fafc; border-top-left-radius: 16px; border-top-right-radius: 16px; }
+        .step { text-align: center; position: relative; flex: 1; }
+        .step:not(:last-child)::after {
+            content: ''; position: absolute; top: 15px; left: 60%; width: 80%; height: 2px; background: #e2e8f0; z-index: 1;
+        }
+        .step.active:not(:last-child)::after { background: var(--primary); }
+        .step-icon {
+            width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #a0aec0;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+            font-weight: 600; position: relative; z-index: 2; transition: all 0.3s;
+        }
+        .step.active .step-icon { background: var(--primary); color: white; box-shadow: 0 0 0 4px rgba(13,155,122,0.2); }
+        .step.completed .step-icon { background: var(--primary); color: white; }
+        .step-label { font-size: 0.85rem; font-weight: 600; color: #a0aec0; }
+        .step.active .step-label, .step.completed .step-label { color: var(--text); }
+        
+        /* Form Sections */
+        .form-section { padding: 40px; display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; color: #2d3748; }
+        
+        /* Options Selection (Radio cards) */
+        .option-card {
+            border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px;
+        }
+        .option-card:hover { border-color: #cbd5e0; background: #f8fafc; }
+        .option-card.selected { border-color: var(--primary); background: rgba(13,155,122,0.05); }
+        .option-icon {
+            width: 48px; height: 48px; border-radius: 50%; background: #edf2f7; color: #4a5568;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .option-card.selected .option-icon { background: var(--primary); color: white; }
+        .option-info h5 { margin: 0 0 4px 0; font-size: 1.05rem; font-weight: 600; }
+        .option-info p { margin: 0; font-size: 0.85rem; color: #718096; }
+        
+        /* Date & Time slots */
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .time-slot {
+            padding: 12px; text-align: center; border: 2px solid #e2e8f0; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; font-weight: 500; color: #4a5568;
+        }
+        .time-slot:hover { border-color: #cbd5e0; }
+        .time-slot.selected { border-color: var(--primary); background: var(--primary); color: white; }
+        .time-slot.disabled { opacity: 0.5; cursor: not-allowed; background: #f7fafc; }
+        
+        .form-control, .form-select { padding: 12px 16px; border-radius: 10px; border: 2px solid #e2e8f0; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,155,122,0.1); }
+        
+        .form-actions { display: flex; justify-content: space-between; padding: 20px 40px; border-top: 1px solid #edf2f7; position: sticky; bottom: 0; background: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 10; box-shadow: 0 -4px 10px rgba(0,0,0,0.02); }
+        .btn-prev { padding: 12px 24px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-weight: 600; transition: 0.2s; }
+        .btn-prev:hover { background: #e2e8f0; }
+        .btn-next, .btn-submit { padding: 12px 32px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; transition: 0.2s; }
+        .btn-next:hover, .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        
+        .summary-card { background: #f8fafc; border-radius: 12px; padding: 24px; border: 1px dashed #cbd5e0; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #edf2f7; }
+        .summary-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .summary-label { color: #718096; font-weight: 500; }
+        .summary-value { color: #2d3748; font-weight: 700; text-align: right; }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Navbar giống trang chủ -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking active"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch</a></li>
+                    <li th:if="${user == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${user != null}"><a th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user"></i> Cá Nhân</a></li>
+                    <li th:if="${user != null}"><a th:href="@{/logout}" class="btn" style="color: #e74c3c; border: 2px solid #e74c3c;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="booking-header">
+        <h1>Đặt Lịch Khám Trực Tuyến</h1>
+        <p>Vui lòng hoàn thành các bước dưới đây để gửi yêu cầu đặt lịch khám tại C7 Smile Clinic.</p>
+    </div>
+
+    <div class="container booking-container">
+        <div class="booking-card">
+            
+            <div class="steps-container">
+                <div class="step active" id="stepIndicator1">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Người Khám</div>
+                </div>
+                <div class="step" id="stepIndicator2">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Dịch Vụ</div>
+                </div>
+                <div class="step" id="stepIndicator3">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Thời Gian</div>
+                </div>
+                <div class="step" id="stepIndicator4">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Xác Nhận</div>
+                </div>
+            </div>
+
+            <form id="bookingForm" th:action="@{/booking}" method="post">
+                <!-- STEP 1: CHỌN NGƯỜI KHÁM -->
+                <div class="form-section active" id="step1">
+                    <h3 class="section-title">Bạn muốn đặt lịch cho ai?</h3>
+                    <p class="text-muted mb-4">Chọn hồ sơ bệnh nhân từ tài khoản của bạn hoặc tạo mới.</p>
+                    
+                    <div class="patient-options" style="max-height: 250px; overflow-y: auto; padding-right: 10px;">
+                        <div th:if="${patients == null || patients.isEmpty()}" class="alert alert-warning">
+                            Bạn chưa có hồ sơ bệnh nhân nào. Vui lòng bấm vào <b>"Thêm hồ sơ mới"</b> dưới đây.
+                        </div>
+                        <div th:each="patient, pStat : ${patients}" 
+                             th:class="'option-card patient-option ' + (${pStat.size == 1 or pStat.index == 0} ? 'selected' : '')" 
+                             th:data-patient-id="${patient.id}">
+                            <input type="radio" name="patientId" th:value="${patient.id}" class="d-none" 
+                                   th:checked="${pStat.size == 1 or pStat.index == 0}">
+                            <div class="option-icon"><i th:class="${patient.gender == 'Nam'} ? 'fa-solid fa-mars' : (${patient.gender == 'Nữ'} ? 'fa-solid fa-venus' : 'fa-solid fa-user')"></i></div>
+                            <div class="option-info">
+                                <h5 th:text="${patient.fullName}">Tên</h5>
+                                <p th:text="${patient.phone != null ? patient.phone : 'Chưa có SĐT'}"></p>
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/customer/patients}" class="option-card" style="text-decoration:none; border: 2px dashed #cbd5e0;">
+                            <div class="option-icon" style="background:transparent; border: 2px solid #a0aec0;"><i class="fa-solid fa-plus text-muted"></i></div>
+                            <div class="option-info">
+                                <h5 class="text-muted">Thêm hồ sơ mới</h5>
+                                <p>Chuyển đến trang quản lý hồ sơ</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- STEP 2: CHỌN DỊCH VỤ -->
+                <div class="form-section" id="step2">
+                    <h3 class="section-title">Chọn dịch vụ nha khoa</h3>
+                    <p class="text-muted mb-4">Chọn một dịch vụ bạn muốn thực hiện trong lần khám này.</p>
+                    
+                    <div class="service-options" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                        <div th:each="service : ${services}" class="option-card service-option" 
+                             th:data-service-id="${service.id}" th:data-service-name="${service.name}">
+                            <input type="radio" name="serviceId" th:value="${service.id}" class="d-none">
+                            <div class="option-icon" style="color:var(--primary); background:rgba(13,155,122,0.1);"><i class="fa-solid fa-tooth"></i></div>
+                            <div class="option-info">
+                                <h5 th:text="${service.name}">Tên dịch vụ</h5>
+                                <p class="text-truncate" style="max-width:300px;" th:text="${service.shortDescription}">Mô tả</p>
+                            </div>
+                            <div class="ms-auto fw-bold text-success" th:text="${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: CHỌN NGÀY & GIỜ -->
+                <div class="form-section" id="step3">
+                    <h3 class="section-title">Thời gian khám</h3>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Chọn ngày <span class="text-danger">*</span></label>
+                        <input type="date" name="appointmentDate" id="appDate" class="form-control" required onchange="updateSummaryDate()">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Chọn buổi (Giờ hành chính) <span class="text-danger">*</span></label>
+                        <input type="hidden" name="timeSlot" id="timeSlotInput" required>
+                        <div class="time-slots">
+                            <div class="time-slot" onclick="selectTimeSlot('Sáng (08:00 - 11:30)', this)">Sáng (08:00 - 11:30)</div>
+                            <div class="time-slot" onclick="selectTimeSlot('Chiều (13:00 - 17:00)', this)">Chiều (13:00 - 17:00)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ghi chú thêm (Tùy chọn)</label>
+                        <textarea name="notes" id="appNotes" class="form-control" rows="2" placeholder="Ví dụ: Đau răng hàm dưới bên trái..."></textarea>
+                    </div>
+                </div>
+
+                <!-- STEP 4: XÁC NHẬN -->
+                <div class="form-section" id="step4">
+                    <h3 class="section-title text-center">Xác Nhận Lịch Khám</h3>
+                    <p class="text-center text-muted mb-4">Vui lòng kiểm tra lại thông tin trước khi gửi yêu cầu.</p>
+                    
+                    <div class="summary-card mx-auto" style="max-width: 500px;">
+                        <div class="summary-item">
+                            <span class="summary-label">Người đặt lịch:</span>
+                            <span class="summary-value" th:text="${user.fullName}">Tên User</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Người khám:</span>
+                            <span class="summary-value" id="summaryPatient">Chưa chọn</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Dịch vụ:</span>
+                            <span class="summary-value" id="summaryService">Chưa chọn</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Ngày khám:</span>
+                            <span class="summary-value" id="summaryDate">Chưa chọn</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Buổi khám:</span>
+                            <span class="summary-value" id="summaryTime">Chưa chọn</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Trạng thái:</span>
+                            <span class="summary-value text-warning"><i class="fa-solid fa-clock me-1"></i> Chờ xác nhận</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn-prev" id="btnPrev" style="visibility:hidden;" onclick="prevStep()">Quay lại</button>
+                    <button type="button" class="btn-next" id="btnNext" onclick="nextStep()">Tiếp tục <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                    <button type="submit" class="btn-submit" id="btnSubmit" style="display:none;"><i class="fa-solid fa-check me-1"></i> Hoàn Tất Đặt Lịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        
+        // Validation state
+        let selectedPatientName = "";
+        let selectedServiceName = "";
+        
+        // Initialize minimum date (today)
+        const dateInput = document.getElementById('appDate');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+
+        function updateButtons() {
+            document.getElementById('btnPrev').style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
+            
+            if (currentStep === totalSteps) {
+                document.getElementById('btnNext').style.display = 'none';
+                document.getElementById('btnSubmit').style.display = 'block';
+                updateFinalSummary();
+            } else {
+                document.getElementById('btnNext').style.display = 'block';
+                document.getElementById('btnSubmit').style.display = 'none';
+            }
+        }
+
+        function updateStepsUI() {
+            // Update sections
+            document.querySelectorAll('.form-section').forEach((el, index) => {
+                if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // Update indicators
+            document.querySelectorAll('.step').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    el.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+            
+            updateButtons();
+        }
+
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                const checked = document.querySelector('input[name="patientId"]:checked');
+                if (!checked) { alert("Vui lòng chọn người khám."); return false; }
+            }
+            if (currentStep === 2) {
+                const checked = document.querySelector('input[name="serviceId"]:checked');
+                if (!checked) { alert("Vui lòng chọn dịch vụ."); return false; }
+            }
+            if (currentStep === 3) {
+                if (!document.getElementById('appDate').value) { alert("Vui lòng chọn ngày khám."); return false; }
+                if (!document.getElementById('timeSlotInput').value) { alert("Vui lòng chọn buổi khám."); return false; }
+            }
+            return true;
+        }
+
+        function nextStep() {
+            if (validateCurrentStep() && currentStep < totalSteps) {
+                currentStep++;
+                updateStepsUI();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepsUI();
+            }
+        }
+
+        // Patient selection - event delegation (safe from Thymeleaf rendering issues)
+        document.querySelectorAll('.patient-option').forEach(function(card) {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.patient-option').forEach(function(el) { el.classList.remove('selected'); });
+                card.classList.add('selected');
+                var radio = card.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+                selectedPatientName = card.querySelector('h5').innerText;
+            });
+        });
+
+        // Service selection - event delegation (safe from Thymeleaf rendering issues)
+        document.querySelectorAll('.service-option').forEach(function(card) {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.service-option').forEach(function(el) { el.classList.remove('selected'); });
+                card.classList.add('selected');
+                var radio = card.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+                selectedServiceName = card.getAttribute('data-service-name');
+            });
+        });
+
+        // Initialize: set selected patient name if auto-selected
+        (function() {
+            var autoSelected = document.querySelector('.patient-option.selected');
+            if (autoSelected) {
+                selectedPatientName = autoSelected.querySelector('h5').innerText;
+            }
+        })();
+
+        function selectTimeSlot(slot, element) {
+            document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('timeSlotInput').value = slot;
+            document.getElementById('summaryTime').innerText = slot;
+        }
+        
+        function updateSummaryDate() {
+            let d = document.getElementById('appDate').value;
+            if(d) {
+                // format YYYY-MM-DD to DD/MM/YYYY
+                let parts = d.split('-');
+                document.getElementById('summaryDate').innerText = parts[2] + '/' + parts[1] + '/' + parts[0];
+            }
+        }
+
+        function updateFinalSummary() {
+            document.getElementById('summaryPatient').innerText = selectedPatientName || "Lỗi: Chưa chọn";
+            document.getElementById('summaryService').innerText = selectedServiceName || "Lỗi: Chưa chọn";
+            updateSummaryDate();
+        }
+    </script>
+
+    <!-- Footer giống trang chủ -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="#" class="logo-footer">
+                        <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+                    </a>
+                    <p>Phòng khám nha khoa tiêu chuẩn quốc tế. Chúng tôi cam kết mang đến dịch vụ chăm sóc răng miệng chất lượng cao, an toàn và tận tâm nhất.</p>
+                    <div class="footer-social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Truy Cập Nhanh</h3>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Trang Chủ</a></li>
+                        <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                        <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                        <li><a th:href="@{/booking}">Đặt Lịch Khám</a></li>
+                        <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Hệ</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fa-solid fa-location-dot"></i><span>85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>Hotline: <strong>0879 742 058</strong></span></li>
+                        <li><i class="fa-regular fa-envelope"></i><span>info@c7smile.com</span></li>
+                        <li><i class="fa-regular fa-clock"></i><span>Thứ 2 - Thứ 7: 8:00 - 20:00<br>Chủ Nhật: 8:00 - 17:00</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. All rights reserved. | Thiết kế bởi C7 Team</p>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 60) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            }, { passive: true });
+        }
+    })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tin Tức - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 20px; }
+        .news-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .news-img { width: 100%; height: 200px; object-fit: cover; }
+        .news-content { padding: 20px; }
+        .news-date { color: #6c757d; font-size: 0.9rem; margin-bottom: 10px; display: block; }
+        .news-title { font-size: 1.25rem; color: var(--primary-color); margin-bottom: 10px; }
+        .news-desc { font-size: 0.95rem; color: var(--text-main); margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}" class="active">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:if="${userRole == 'ADMIN'}" th:href="@{/admin/dashboard}" class="btn btn-login"><i class="fa-solid fa-gauge me-1"></i> Quản Trị</a>
+                    <a th:if="${userRole == 'DOCTOR'}" th:href="@{/doctor/dashboard}" class="btn btn-login"><i class="fa-solid fa-user-doctor me-1"></i> Bác Sĩ</a>
+                    <a th:if="${userRole == 'RECEPTIONIST'}" th:href="@{/reception/appointments}" class="btn btn-login"><i class="fa-solid fa-headset me-1"></i> Lễ Tân</a>
+                    <a th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RECEPTIONIST'}" th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user me-1"></i> Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Tin Tức & Khuyến Mãi</h1>
+            <p>Cập nhật những thông tin mới nhất và kiến thức chăm sóc răng miệng</p>
+        </div>
+    </div>
+
+    <div class="container content-section">
+        <div class="news-grid">
+            <div class="news-card">
+                <img src="https://images.unsplash.com/photo-1609840112155-317d1217e4bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="News" class="news-img">
+                <div class="news-content">
+                    <span class="news-date"><i class="fa-regular fa-calendar"></i> 29/09/2026</span>
+                    <h3 class="news-title">Ưu Đãi Đặc Biệt: Trồng Răng Implant Mùa Thu</h3>
+                    <p class="news-desc">Giảm giá lên đến 20% cho khách hàng đăng ký trồng răng Implant trong tháng 10. Miễn phí chụp phim CT Conebeam.</p>
+                    <a href="#" class="btn btn-login" style="padding: 5px 15px; font-size: 0.9rem;">Xem Chi Tiết</a>
+                </div>
+            </div>
+            
+            <div class="news-card">
+                <img src="https://images.unsplash.com/photo-1598256989800-fea5ce5146bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="News" class="news-img">
+                <div class="news-content">
+                    <span class="news-date"><i class="fa-regular fa-calendar"></i> 20/09/2026</span>
+                    <h3 class="news-title">5 Thói Quen Xấu Phá Hủy Men Răng Của Bạn</h3>
+                    <p class="news-desc">Bạn có biết việc chải răng quá mạnh hay nhai đá lạnh có thể làm tổn thương men răng vĩnh viễn? Hãy cùng tìm hiểu...</p>
+                    <a href="#" class="btn btn-login" style="padding: 5px 15px; font-size: 0.9rem;">Xem Chi Tiết</a>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="News" class="news-img">
+                <div class="news-content">
+                    <span class="news-date"><i class="fa-regular fa-calendar"></i> 15/09/2026</span>
+                    <h3 class="news-title">Tẩy Trắng Răng Laser Có Tốt Không?</h3>
+                    <p class="news-desc">Phương pháp tẩy trắng răng bằng công nghệ Laser đang được ưa chuộng. Liệu nó có gây ê buốt và ảnh hưởng tủy răng?</p>
+                    <a href="#" class="btn btn-login" style="padding: 5px 15px; font-size: 0.9rem;">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic.</p>
+        </div>
+    </footer>
+</body>
+</html>

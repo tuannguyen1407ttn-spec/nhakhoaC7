@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Bệnh Nhân - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        .patients-hero {
+            background: linear-gradient(135deg, var(--primary-dark, #095c61) 0%, var(--primary-color, #0e7a81) 40%, var(--primary-light, #15aabf) 100%);
+            color: white; padding: 60px 0 80px; text-align: center;
+        }
+        .patients-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .patients-hero p { font-size: 1.05rem; opacity: 0.9; }
+
+        .patients-content { max-width: 900px; margin: -40px auto 60px; padding: 0 20px; position: relative; z-index: 10; }
+
+        .customer-nav-tabs {
+            display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+            background: white; padding: 8px 12px; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+        .customer-tab {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+            border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #4a5568;
+            text-decoration: none; transition: all 0.2s ease;
+        }
+        .customer-tab:hover { color: var(--primary-color, #0e7a81); background: rgba(14,122,129,0.06); }
+        .customer-tab.active { background: var(--primary-color, #0e7a81); color: white; }
+        .customer-tab.highlight { margin-left: auto; background: #e6fffa; color: #0e7a81; border: 1px solid #b2f5ea; }
+        .customer-tab.highlight:hover { background: #0e7a81; color: white; }
+
+        .patients-card {
+            background: white; border-radius: 16px; padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+
+        .patients-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+        .patients-header h3 { font-weight: 700; color: #2d3748; margin: 0; font-size: 1.2rem; }
+
+        .btn-add-patient {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
+            background: var(--primary-color, #0e7a81); color: white; border: none; border-radius: 10px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-add-patient:hover { background: var(--primary-dark, #095c61); color: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14,122,129,0.3); }
+
+        .patient-item {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 20px 24px; margin-bottom: 16px; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .patient-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateY(-2px); border-color: var(--primary-light, #15aabf); }
+        .patient-info { display: flex; align-items: center; gap: 16px; }
+        .patient-avatar {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(14,122,129,0.1); color: var(--primary-color, #0e7a81);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .patient-details h5 { margin: 0 0 4px 0; font-weight: 600; color: #2d3748; font-size: 1rem; }
+        .patient-details p { margin: 0; font-size: 0.85rem; color: #718096; }
+
+        .badge-linked {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #f0fff4; border: 1px solid #c6f6d5; color: #276749;
+            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+        }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: #a0aec0; }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; color: #cbd5e0; }
+        .empty-state h5 { color: #4a5568; font-weight: 600; margin-bottom: 8px; }
+        .empty-state p { color: #718096; }
+
+        /* Modal Styling Override */
+        .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .modal-header { border-bottom: 1px solid #edf2f7; padding: 20px 28px; }
+        .modal-header .modal-title { font-weight: 700; color: #2d3748; }
+        .modal-body { padding: 24px 28px; }
+        .modal-footer { border-top: 1px solid #edf2f7; padding: 16px 28px; }
+        .modal-body .form-label { font-weight: 500; color: #4a5568; font-size: 0.9rem; }
+        .modal-body .form-control, .modal-body .form-select {
+            border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px 14px;
+            transition: all 0.3s;
+        }
+        .modal-body .form-control:focus, .modal-body .form-select:focus {
+            border-color: var(--primary-color, #0e7a81);
+            box-shadow: 0 0 0 3px rgba(14,122,129,0.1);
+        }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--primary-color, #0e7a81); text-decoration: none; font-weight: 500;
+            font-size: 0.9rem; margin-bottom: 20px; transition: all 0.2s;
+        }
+        .back-link:hover { color: var(--primary-dark, #095c61); }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar giống trang chủ -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch</a></li>
+                    <li><a th:href="@{/customer/dashboard}" class="btn btn-login active"><i class="fa-regular fa-user"></i> Cá Nhân</a></li>
+                    <li><a th:href="@{/logout}" class="btn" style="color: #e74c3c; border: 2px solid #e74c3c;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="patients-hero">
+        <h1>Hồ Sơ Bệnh Nhân</h1>
+        <p>Quản lý hồ sơ khám của bạn và người thân</p>
+    </section>
+
+    <!-- Content -->
+    <div class="patients-content">
+        <!-- Navigation Tabs -->
+        <div class="customer-nav-tabs">
+            <a th:href="@{/customer/dashboard}" class="customer-tab"><i class="fa-solid fa-gauge-high"></i> Tổng quan</a>
+            <a th:href="@{/customer/patients}" class="customer-tab active"><i class="fa-solid fa-users"></i> Người thân & Hồ sơ</a>
+            <a th:href="@{/customer/medical-records}" class="customer-tab"><i class="fa-solid fa-notes-medical"></i> Lịch sử khám</a>
+            <a th:href="@{/customer/invoices}" class="customer-tab"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</a>
+            <a th:href="@{/booking}" class="customer-tab highlight"><i class="fa-regular fa-calendar-check"></i> Đặt lịch hẹn mới</a>
+        </div>
+
+        <div class="patients-card">
+            <a th:href="@{/customer/dashboard}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Quay về Tổng Quan</a>
+
+            <div class="patients-header">
+                <h3><i class="fa-solid fa-users" style="color:var(--primary-color, #0e7a81); margin-right:8px;"></i>Danh sách hồ sơ</h3>
+                <button class="btn-add-patient" data-bs-toggle="modal" data-bs-target="#patientModal">
+                    <i class="fa-solid fa-plus"></i> Thêm Hồ Sơ Mới
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${patients == null || patients.isEmpty()}" class="empty-state">
+                <i class="fa-solid fa-users"></i>
+                <h5>Chưa có hồ sơ bệnh nhân</h5>
+                <p>Bạn có thể tạo hồ sơ cho chính mình hoặc người thân để đặt lịch khám.</p>
+            </div>
+
+            <!-- Patient List -->
+            <div th:if="${patients != null && !patients.isEmpty()}">
+                <div th:each="patient : ${patients}" class="patient-item">
+                    <div class="patient-info">
+                        <div class="patient-avatar">
+                            <i th:class="${patient.gender == 'Nam'} ? 'fa-solid fa-mars' : (${patient.gender == 'Nữ'} ? 'fa-solid fa-venus' : 'fa-solid fa-user')"></i>
+                        </div>
+                        <div class="patient-details">
+                            <h5 th:text="${patient.fullName}">Tên bệnh nhân</h5>
+                            <p>
+                                <i class="fa-solid fa-phone" style="margin-right:4px;"></i>
+                                <span th:text="${patient.phone != null ? patient.phone : 'Chưa cập nhật'}"></span>
+                                &nbsp;|&nbsp;
+                                <i class="fa-solid fa-cake-candles" style="margin-right:4px;"></i>
+                                <span th:text="${patient.dob != null ? patient.dob : 'Chưa cập nhật'}"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <span class="badge-linked"><i class="fa-solid fa-check"></i> Đã liên kết</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Bệnh Nhân -->
+    <div class="modal fade" id="patientModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/customer/patients/save}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fa-solid fa-user-plus" style="color:var(--primary-color, #0e7a81); margin-right:8px;"></i>Thêm Hồ Sơ Bệnh Nhân</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="fullName" class="form-control" required placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="text" name="phone" class="form-control" placeholder="0xxx xxx xxx">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ngày sinh</label>
+                                <input type="date" name="dob" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Giới tính</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số CCCD</label>
+                                <input type="text" name="cccd" class="form-control" placeholder="Số căn cước">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" name="address" class="form-control" placeholder="Địa chỉ hiện tại">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú y tế (Dị ứng, bệnh nền...)</label>
+                            <textarea name="medicalHistoryNotes" class="form-control" rows="2" placeholder="Ghi chú thêm nếu có"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius:10px;">Hủy</button>
+                        <button type="submit" class="btn-add-patient">Lưu Hồ Sơ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer giống trang chủ -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="#" class="logo-footer">
+                        <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+                    </a>
+                    <p>Phòng khám nha khoa tiêu chuẩn quốc tế. Chúng tôi cam kết mang đến dịch vụ chăm sóc răng miệng chất lượng cao, an toàn và tận tâm nhất.</p>
+                    <div class="footer-social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Truy Cập Nhanh</h3>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Trang Chủ</a></li>
+                        <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                        <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                        <li><a th:href="@{/booking}">Đặt Lịch Khám</a></li>
+                        <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Hệ</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fa-solid fa-location-dot"></i><span>85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>Hotline: <strong>0879 742 058</strong></span></li>
+                        <li><i class="fa-regular fa-envelope"></i><span>info@c7smile.com</span></li>
+                        <li><i class="fa-regular fa-clock"></i><span>Thứ 2 - Thứ 7: 8:00 - 20:00<br>Chủ Nhật: 8:00 - 17:00</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. All rights reserved. | Thiết kế bởi C7 Team</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function() {
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        }, { passive: true });
+    })();
+    </script>
+
+</body>
+</html>

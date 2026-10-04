@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Khám Bệnh - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary-dark, #095c61) 0%, var(--primary-color, #0e7a81) 40%, var(--primary-light, #15aabf) 100%);
+            color: white; padding: 50px 0 75px; text-align: center;
+        }
+        .hero-banner h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .hero-banner p { font-size: 1.05rem; opacity: 0.9; }
+
+        .main-container { max-width: 1100px; margin: -40px auto 60px; padding: 0 20px; position: relative; z-index: 10; }
+
+        .customer-nav-tabs {
+            display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+            background: white; padding: 8px 12px; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+        .customer-tab {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+            border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #4a5568;
+            text-decoration: none; transition: all 0.2s ease;
+        }
+        .customer-tab:hover { color: var(--primary-color, #0e7a81); background: rgba(14,122,129,0.06); }
+        .customer-tab.active { background: var(--primary-color, #0e7a81); color: white; }
+        .customer-tab.highlight { margin-left: auto; background: #e6fffa; color: #0e7a81; border: 1px solid #b2f5ea; }
+        .customer-tab.highlight:hover { background: #0e7a81; color: white; }
+
+        .content-card {
+            background: white; border-radius: 16px; padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+
+        .record-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 24px; margin-bottom: 20px; transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .record-card:hover {
+            border-color: var(--primary-light, #15aabf);
+            box-shadow: 0 8px 25px rgba(14,122,129,0.08);
+            transform: translateY(-2px);
+        }
+
+        .record-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f4f8; padding-bottom: 14px; margin-bottom: 16px;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .record-date {
+            display: flex; align-items: center; gap: 8px; font-weight: 700;
+            color: #2d3748; font-size: 1.05rem;
+        }
+        .record-badge {
+            background: rgba(14,122,129,0.1); color: var(--primary-color, #0e7a81);
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        }
+
+        .record-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px; margin-bottom: 16px;
+        }
+        .field-group { font-size: 0.9rem; }
+        .field-label { color: #718096; font-size: 0.8rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .field-value { color: #2d3748; font-weight: 500; }
+        .field-value.highlight { color: #0e7a81; font-weight: 600; }
+
+        .record-notes-box {
+            background: #f8fafc; border-radius: 10px; padding: 14px 18px;
+            border-left: 4px solid var(--primary-color, #0e7a81);
+            margin-top: 12px;
+        }
+        .record-notes-box h6 { font-size: 0.85rem; font-weight: 700; color: #2d3748; margin-bottom: 6px; }
+        .record-notes-box p { font-size: 0.88rem; color: #4a5568; margin: 0; line-height: 1.6; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #a0aec0; }
+        .empty-state i { font-size: 3.5rem; margin-bottom: 16px; display: block; color: #cbd5e0; }
+        .empty-state h4 { color: #4a5568; font-weight: 700; margin-bottom: 8px; }
+        .empty-state p { color: #718096; margin-bottom: 20px; }
+
+        .btn-custom {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+            background: var(--primary-color, #0e7a81); color: white; border-radius: 10px;
+            text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.3s;
+            border: none;
+        }
+        .btn-custom:hover { background: var(--primary-dark, #095c61); color: white; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch</a></li>
+                    <li><a th:href="@{/customer/dashboard}" class="btn btn-login active"><i class="fa-regular fa-user"></i> Cá Nhân</a></li>
+                    <li><a th:href="@{/logout}" class="btn" style="color: #e74c3c; border: 2px solid #e74c3c;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="hero-banner">
+        <h1>Lịch Sử Khám Bệnh</h1>
+        <p>Hồ sơ theo dõi tiến trình và chẩn đoán điều trị của bạn và người thân</p>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Navigation Tabs -->
+        <div class="customer-nav-tabs">
+            <a th:href="@{/customer/dashboard}" class="customer-tab"><i class="fa-solid fa-gauge-high"></i> Tổng quan</a>
+            <a th:href="@{/customer/patients}" class="customer-tab"><i class="fa-solid fa-users"></i> Người thân & Hồ sơ</a>
+            <a th:href="@{/customer/medical-records}" class="customer-tab active"><i class="fa-solid fa-notes-medical"></i> Lịch sử khám</a>
+            <a th:href="@{/customer/invoices}" class="customer-tab"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</a>
+            <a th:href="@{/booking}" class="customer-tab highlight"><i class="fa-regular fa-calendar-check"></i> Đặt lịch hẹn mới</a>
+        </div>
+
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h4 class="m-0 fw-bold" style="color: #2d3748;">
+                    <i class="fa-solid fa-clipboard-list text-primary me-2"></i>Danh sách hồ sơ khám
+                </h4>
+                <span class="text-muted small" th:if="${records != null}">
+                    Tổng số: <strong th:text="${records.size()}">0</strong> hồ sơ
+                </span>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${records == null || records.isEmpty()}" class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <h4>Chưa có hồ sơ khám bệnh nào</h4>
+                <p>Sau khi hoàn tất buổi thăm khám tại phòng khám, kết quả chẩn đoán và điều trị của bác sĩ sẽ hiển thị tại đây.</p>
+                <a th:href="@{/booking}" class="btn-custom">
+                    <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám ngay
+                </a>
+            </div>
+
+            <!-- Record List -->
+            <div th:if="${records != null && !records.isEmpty()}">
+                <div th:each="record : ${records}" class="record-card">
+                    <div class="record-header">
+                        <div class="record-date">
+                            <i class="fa-regular fa-calendar-check text-primary"></i>
+                            <span th:text="${#temporals.format(record.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 09:00</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="record-badge" th:text="'Hồ sơ #' + ${record.id}">HS-01</span>
+                            <span th:if="${record.appointment != null}" class="badge bg-light text-secondary border">
+                                Lịch hẹn #<span th:text="${record.appointment.id}"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="record-grid">
+                        <div class="field-group">
+                            <div class="field-label">Người Khám (Bệnh nhân)</div>
+                            <div class="field-value">
+                                <i class="fa-solid fa-user me-1 text-muted"></i>
+                                <strong th:text="${record.patient != null ? record.patient.fullName : 'Chưa cập nhật'}">Nguyễn Văn A</strong>
+                                <span class="text-muted small" th:if="${record.patient != null && record.patient.phone != null}" th:text="' (' + ${record.patient.phone} + ')'"></span>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label">Bác Sĩ Phụ Trách</div>
+                            <div class="field-value highlight">
+                                <i class="fa-solid fa-user-doctor me-1"></i>
+                                <span th:text="${record.doctor != null ? record.doctor.fullName : 'Bác sĩ chuyên khoa'}">BS. C7 Smile</span>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label">Dịch Vụ Khám</div>
+                            <div class="field-value">
+                                <i class="fa-solid fa-tooth me-1 text-muted"></i>
+                                <span th:text="${record.appointment != null && record.appointment.service != null ? record.appointment.service.name : 'Khám & Tư vấn tổng quát'}">Khám tổng quát</span>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label">Triệu Chứng Ban Đầu</div>
+                            <div class="field-value" th:text="${record.symptoms != null && !record.symptoms.isEmpty() ? record.symptoms : 'Không có triệu chứng bất thường'}">
+                                Đau nhức nhẹ
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="field-label">Kết Quả Chẩn Đoán</div>
+                            <div class="p-3 bg-light rounded-3 text-dark fw-medium" th:text="${record.diagnosis != null && !record.diagnosis.isEmpty() ? record.diagnosis : 'Đã khám kiểm tra tổng quát'}">
+                                Viêm lợi nhẹ
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-label">Phương Pháp / Quá Trình Điều Trị</div>
+                            <div class="p-3 bg-light rounded-3 text-dark" th:text="${record.treatment != null && !record.treatment.isEmpty() ? record.treatment : 'Vệ sinh khoang miệng và bôi thuốc'}">
+                                Lấy cao răng và vệ sinh răng miệng
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-notes-box" th:if="${record.notes != null && !record.notes.isEmpty()}">
+                        <h6><i class="fa-solid fa-comment-medical text-primary me-2"></i>Lời dặn & Hướng dẫn chăm sóc của Bác sĩ:</h6>
+                        <p th:text="${record.notes}">Đánh răng 2 lần/ngày, tái khám sau 6 tháng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="#" class="logo-footer">
+                        <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+                    </a>
+                    <p>Phòng khám nha khoa tiêu chuẩn quốc tế. Chúng tôi cam kết mang đến dịch vụ chăm sóc răng miệng chất lượng cao, an toàn và tận tâm nhất.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Truy Cập Nhanh</h3>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Trang Chủ</a></li>
+                        <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                        <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                        <li><a th:href="@{/booking}">Đặt Lịch Khám</a></li>
+                        <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Hệ</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fa-solid fa-location-dot"></i><span>85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>Hotline: <strong>0879 742 058</strong></span></li>
+                        <li><i class="fa-regular fa-envelope"></i><span>info@c7smile.com</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. All rights reserved. | Thiết kế bởi C7 Team</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function() {
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        }, { passive: true });
+    })();
+    </script>
+</body>
+</html>

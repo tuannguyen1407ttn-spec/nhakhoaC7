@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ Cá Nhân - C7 Smile Clinic</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .profile-container { max-width: 800px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: var(--shadow-md); }
+        .profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .profile-header h2 { color: var(--primary-color); }
+        
+        .appointment-card { background: var(--bg-light); border-left: 4px solid var(--primary-color); padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .appointment-card h4 { color: var(--text-main); margin-bottom: 10px; }
+        .appointment-card p { margin-bottom: 5px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/profile}" class="btn btn-login active">Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h2>Hồ Sơ Của Bạn</h2>
+            <p>Xin chào, <strong th:text="${user.fullName}"></strong>!</p>
+        </div>
+        
+        <h3>Lịch Khám Đã Đặt</h3>
+        <p th:if="${#lists.isEmpty(appointments)}">Bạn chưa có lịch khám nào.</p>
+        
+        <div class="appointment-list" th:if="${not #lists.isEmpty(appointments)}">
+            <div class="appointment-card" th:each="appt : ${appointments}">
+                <h4 th:text="'Dịch vụ: ' + (${appt.service != null ? appt.service.name : 'Chưa xác định'})"></h4>
+                <p><strong>Ngày khám:</strong> <span th:text="${appt.appointmentDate}"></span></p>
+                <p><strong>Ca khám:</strong> <span th:text="${appt.timeSlot}"></span></p>
+                <p><strong>Bệnh nhân:</strong> <span th:text="${appt.fullName}"></span> (CCCD: <span th:text="${appt.cccd}"></span>)</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

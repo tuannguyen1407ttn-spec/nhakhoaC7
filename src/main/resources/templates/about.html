@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Về Chúng Tôi - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}" class="active">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:if="${userRole == 'ADMIN'}" th:href="@{/admin/dashboard}" class="btn btn-login"><i class="fa-solid fa-gauge me-1"></i> Quản Trị</a>
+                    <a th:if="${userRole == 'DOCTOR'}" th:href="@{/doctor/dashboard}" class="btn btn-login"><i class="fa-solid fa-user-doctor me-1"></i> Bác Sĩ</a>
+                    <a th:if="${userRole == 'RECEPTIONIST'}" th:href="@{/reception/appointments}" class="btn btn-login"><i class="fa-solid fa-headset me-1"></i> Lễ Tân</a>
+                    <a th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RECEPTIONIST'}" th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user me-1"></i> Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Về C7 Smile Clinic</h1>
+            <p>Hành trình kiến tạo nụ cười hoàn mỹ</p>
+        </div>
+    </div>
+
+    <div class="container content-section">
+        <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center;">
+            <div style="flex: 1; min-width: 300px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 20px;">Lịch Sử Hình Thành</h2>
+                <p>Thành lập từ năm 2020, <strong>C7 Smile Clinic</strong> tự hào là một trong những phòng khám nha khoa tiên phong tại Hà Nội áp dụng công nghệ số hóa vào điều trị nha khoa. Chúng tôi hiểu rằng một nụ cười đẹp không chỉ mang lại sự tự tin mà còn là nền tảng của sức khỏe toàn diện.</p>
+                <p>Với đội ngũ y bác sĩ tốt nghiệp từ các trường đại học y khoa danh tiếng và tu nghiệp tại nước ngoài, chúng tôi cam kết mang đến phác đồ điều trị an toàn, hiệu quả và không đau đớn cho mọi khách hàng.</p>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Phòng khám" style="width: 100%;">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap-reverse; gap: 40px; align-items: center; margin-top: 60px;">
+            <div style="flex: 1; min-width: 300px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 20px;">Tầm Nhìn & Sứ Mệnh</h2>
+                <p><strong>Tầm nhìn:</strong> Trở thành chuỗi phòng khám nha khoa chuẩn quốc tế số 1 tại Việt Nam, nơi mọi gia đình đều an tâm gửi gắm sức khỏe răng miệng.</p>
+                <p><strong>Sứ mệnh:</strong> Phục hình và chăm sóc nụ cười khỏe đẹp cho 1 triệu người dân Việt Nam với tiêu chí "Tận tâm - Chuyên nghiệp - Hiện đại". Mỗi khách hàng đến với C7 Smile Clinic đều được coi là một người thân trong gia đình.</p>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sứ mệnh" style="width: 100%; border-radius: 20px;">
+            </div>
+        </div>
+
+        <div style="margin-top: 80px;">
+            <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 40px;">Đội Ngũ Bác Sĩ Của Chúng Tôi</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div th:each="ds : ${dentists}" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-sm); text-align: center; padding-bottom: 20px; transition: var(--transition);">
+                    <img th:if="${ds.avatarUrl}" th:src="${ds.avatarUrl}" style="width: 100%; height: 250px; object-fit: cover;">
+                    <div th:unless="${ds.avatarUrl}" style="width: 100%; height: 250px; background: #eee; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-user-doctor fa-4x" style="color:#ccc;"></i>
+                    </div>
+                    <div style="padding: 20px 15px 0;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 5px;" th:text="${ds.fullName}"></h4>
+                        <p style="color: var(--secondary-color); font-size: 0.95rem; margin-bottom: 15px;" th:text="${ds.position != null ? ds.position : 'Bác sĩ chuyên khoa'}"></p>
+                        <a th:href="@{'/bac-si/' + ${ds.slug != null ? ds.slug : ds.id}}" class="btn btn-login" style="border-color: var(--primary-color); color: var(--primary-color); padding: 8px 20px; font-size: 0.9rem;">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic.</p>
+        </div>
+    </footer>
+</body>
+</html>

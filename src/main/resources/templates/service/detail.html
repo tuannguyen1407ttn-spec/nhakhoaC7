@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${service.name} + ' - C7 Smile Clinic'"></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        :root {
+            --primary: #0d9b7a;
+            --primary-dark: #0a6e5c;
+            --primary-light: #14b895;
+            --secondary: #e67e22;
+            --text-dark: #1a202c;
+            --text-muted: #718096;
+            --bg-light: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+            margin: 0;
+            padding: 0;
+        }
+
+        .service-hero {
+            background: linear-gradient(135deg, #0a6e5c 0%, #0d9b7a 100%);
+            color: white;
+            padding: 50px 0 90px;
+            position: relative;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .breadcrumb a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0 0 15px;
+            line-height: 1.25;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 800px;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .main-wrapper {
+            margin-top: -50px;
+            margin-bottom: 80px;
+        }
+
+        .service-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 35px;
+            align-items: start;
+        }
+
+        /* Left Content Column */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            margin-bottom: 35px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .service-banner-img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(13, 155, 122, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .rich-text {
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #4a5568;
+            white-space: pre-line;
+            margin-bottom: 20px;
+        }
+
+        /* Highlight Callout Box */
+        .callout-box {
+            background: #ebfbf6;
+            border-left: 5px solid var(--primary);
+            padding: 24px;
+            border-radius: 0 16px 16px 0;
+            margin: 30px 0;
+        }
+        .callout-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .callout-box p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #2c7a6b;
+        }
+
+        /* Timeline Step Box */
+        .step-container {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        /* Right Sticky Sidebar */
+        .sticky-sidebar {
+            position: sticky;
+            top: 25px;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+        }
+
+        .price-badge {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .price-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #38a169;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .price-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #22543d;
+            margin: 0;
+        }
+
+        .meta-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .meta-item i {
+            color: var(--primary);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        .meta-item strong {
+            color: #2d3748;
+        }
+
+        .btn-book-now {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #0d9b7a, #0a6e5c);
+            color: white;
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 6px 15px rgba(13, 155, 122, 0.3);
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        .btn-book-now:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 155, 122, 0.4);
+            color: white;
+        }
+
+        .guarantee-box {
+            background: #fffaf0;
+            border: 1px solid #feebc8;
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .guarantee-box h5 {
+            color: #c05621;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .guarantee-item {
+            font-size: 0.88rem;
+            color: #7b341e;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .guarantee-item i {
+            color: #dd6b20;
+            font-size: 0.8rem;
+        }
+
+        .hotline-card {
+            background: #1a202c;
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+        .hotline-number {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #48bb78;
+            margin: 8px 0;
+            display: block;
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .service-layout {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .service-banner-img {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}" class="active">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/customer/dashboard}" class="btn btn-login">Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Header Hero Section -->
+    <div class="service-hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a th:href="@{/}"><i class="fa-solid fa-house"></i> Trang chủ</a> 
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <a th:href="@{/services}">Dịch vụ nha khoa</a> 
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <span th:text="${service.name}" style="color: #ffffff; font-weight: 600;"></span>
+            </div>
+            <h1 class="hero-title" th:text="${service.name}"></h1>
+            <p class="hero-subtitle" th:text="${service.shortDescription != null ? service.shortDescription : service.description}"></p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container main-wrapper">
+        <div class="service-layout">
+            <!-- Left Main Column (Rich Content) -->
+            <div class="content-column">
+                <div class="content-card">
+                    <!-- Ảnh đại diện dịch vụ chất lượng cao -->
+                    <img th:if="${service.imageUrl}" th:src="${service.imageUrl}" alt="Dịch vụ C7 Smile" class="service-banner-img">
+                    
+                    <!-- 1. Chi Tiết Dịch Vụ -->
+                    <div class="section-header">
+                        <div class="section-icon"><i class="fa-solid fa-file-medical"></i></div>
+                        <h2 class="section-title">Tổng Quan &amp; Công Nghệ Ứng Dụng</h2>
+                    </div>
+                    <div class="rich-text" th:text="${service.detailedDescription != null ? service.detailedDescription : service.description}"></div>
+
+                    <!-- Highlight Hộp Cam Kết Y Khoa -->
+                    <div class="callout-box">
+                        <h4><i class="fa-solid fa-shield-halved"></i> Tiêu Chuẩn Vô Trùng Khép Kín 1:1</h4>
+                        <p>Tại C7 Smile Clinic, mọi dịch vụ đều được thực hiện theo nguyên tắc khắt khe của Bộ Y Tế: 1 Khách hàng - 1 Ghế nha biệt lập - 1 Bộ dụng cụ hấp sấy vô trùng riêng biệt, loại bỏ 100% nguy cơ lây nhiễm chéo.</p>
+                    </div>
+
+                    <!-- 2. Lợi Ích Vượt Trội -->
+                    <div class="section-header" style="margin-top: 40px;" th:if="${service.benefits != null and !service.benefits.isEmpty()}">
+                        <div class="section-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <h2 class="section-title">Lợi Ích Vượt Trội Cho Khách Hàng</h2>
+                    </div>
+                    <div class="rich-text" th:if="${service.benefits != null and !service.benefits.isEmpty()}" th:text="${service.benefits}"></div>
+
+                    <!-- 3. Quy Trình Điều Trị Chuẩn Y Khoa -->
+                    <div class="section-header" style="margin-top: 40px;" th:if="${service.process != null and !service.process.isEmpty()}">
+                        <div class="section-icon"><i class="fa-solid fa-list-ol"></i></div>
+                        <h2 class="section-title">Quy Trình Điều Trị Chuẩn Y Khoa</h2>
+                    </div>
+                    <div class="rich-text" th:if="${service.process != null and !service.process.isEmpty()}" th:text="${service.process}"></div>
+
+                    <!-- 4. Đối Tượng Phù Hợp & Chỉ Định -->
+                    <div class="section-header" style="margin-top: 40px;" th:if="${service.suitableFor != null and !service.suitableFor.isEmpty()}">
+                        <div class="section-icon"><i class="fa-solid fa-user-check"></i></div>
+                        <h2 class="section-title">Đối Tượng Phù Hợp &amp; Chỉ Định Điều Trị</h2>
+                    </div>
+                    <div class="rich-text" th:if="${service.suitableFor != null and !service.suitableFor.isEmpty()}" th:text="${service.suitableFor}"></div>
+
+                    <!-- 5. Lưu Ý Quan Trọng -->
+                    <div class="section-header" style="margin-top: 40px;" th:if="${service.notes != null and !service.notes.isEmpty()}">
+                        <div class="section-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h2 class="section-title">Lưu Ý Trước &amp; Trong Khi Thực Hiện</h2>
+                    </div>
+                    <div class="rich-text" th:if="${service.notes != null and !service.notes.isEmpty()}" th:text="${service.notes}"></div>
+
+                    <!-- 6. Hướng Dẫn Chăm Sóc Sau Điều Trị -->
+                    <div class="section-header" style="margin-top: 40px;" th:if="${service.aftercare != null and !service.aftercare.isEmpty()}">
+                        <div class="section-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <h2 class="section-title">Hướng Dẫn Chăm Sóc Sau Điều Trị</h2>
+                    </div>
+                    <div class="rich-text" th:if="${service.aftercare != null and !service.aftercare.isEmpty()}" th:text="${service.aftercare}"></div>
+                </div>
+            </div>
+
+            <!-- Right Sticky Sidebar -->
+            <div class="sidebar-column">
+                <div class="sticky-sidebar">
+                    <div class="sidebar-card">
+                        <!-- Bảng Giá -->
+                        <div class="price-badge">
+                            <div class="price-label">Chi phí điều trị niêm yết</div>
+                            <div class="price-value" th:text="${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                        </div>
+
+                        <!-- Thông số tóm tắt -->
+                        <ul class="meta-list">
+                            <li class="meta-item">
+                                <i class="fa-regular fa-clock"></i>
+                                <div>
+                                    <small style="color:#718096; display:block;">Thời gian thực hiện:</small>
+                                    <strong th:text="${service.duration != null ? service.duration : '30 - 60 phút'}"></strong>
+                                </div>
+                            </li>
+                            <li class="meta-item">
+                                <i class="fa-solid fa-shield-virus"></i>
+                                <div>
+                                    <small style="color:#718096; display:block;">Tiêu chuẩn vô trùng:</small>
+                                    <strong>Áp lực âm tiêu chuẩn Châu Âu</strong>
+                                </div>
+                            </li>
+                            <li class="meta-item">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                <div>
+                                    <small style="color:#718096; display:block;">Bác sĩ phụ trách:</small>
+                                    <strong>Chuyên gia Răng Hàm Mặt Cấp Cao</strong>
+                                </div>
+                            </li>
+                            <li class="meta-item">
+                                <i class="fa-solid fa-award"></i>
+                                <div>
+                                    <small style="color:#718096; display:block;">Chính sách bảo hành:</small>
+                                    <strong>Chính hãng bằng thẻ điện tử</strong>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <!-- Nút Đặt Lịch Ngay -->
+                        <a th:href="@{/booking(serviceId=${service.id})}" class="btn-book-now">
+                            <i class="fa-solid fa-calendar-check me-2"></i> Đặt Lịch Khám Ngay
+                        </a>
+
+                        <!-- Khối Cam Kết -->
+                        <div class="guarantee-box">
+                            <h5><i class="fa-solid fa-hand-holding-medical"></i> Cam Kết Tại C7 Smile</h5>
+                            <div class="guarantee-item"><i class="fa-solid fa-check"></i> 100% Bác sĩ giỏi trực tiếp thăm khám</div>
+                            <div class="guarantee-item"><i class="fa-solid fa-check"></i> Minh bạch giá, không phát sinh phụ phí</div>
+                            <div class="guarantee-item"><i class="fa-solid fa-check"></i> Trả góp lãi suất 0% linh hoạt</div>
+                            <div class="guarantee-item"><i class="fa-solid fa-check"></i> Đưa đón và chăm sóc tận tình 24/7</div>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ Hotline tư vấn -->
+                    <div class="hotline-card">
+                        <i class="fa-solid fa-headset fa-2x mb-2" style="color: #48bb78;"></i>
+                        <h4 style="margin: 0 0 5px; font-size: 1.15rem;">Cần Tư Vấn Nhanh?</h4>
+                        <p style="font-size: 0.88rem; color: #a0aec0; margin: 0;">Đội ngũ y bác sĩ sẵn sàng hỗ trợ bạn 24/7</p>
+                        <a href="tel:0879742058" class="hotline-number"><i class="fa-solid fa-phone me-1"></i> 0879.742.058</a>
+                        <span style="font-size: 0.8rem; color: #cbd5e0;">Miễn phí cước cuộc gọi tư vấn</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. Hệ Thống Nha Khoa Kỹ Thuật Số Quốc Tế.</p>
+        </div>
+    </footer>
+</body>
+</html>

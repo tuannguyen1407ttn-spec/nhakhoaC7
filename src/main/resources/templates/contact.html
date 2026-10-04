@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liên Hệ - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        .contact-grid { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 20px; }
+        .contact-info, .contact-form { flex: 1; min-width: 300px; background: white; padding: 30px; border-radius: 10px; box-shadow: var(--shadow-sm); }
+        .contact-info h3 { color: var(--primary-color); margin-bottom: 20px; }
+        .contact-info p { font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+        .contact-info p i { color: var(--secondary-color); font-size: 1.5rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}" class="active">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:if="${userRole == 'ADMIN'}" th:href="@{/admin/dashboard}" class="btn btn-login"><i class="fa-solid fa-gauge me-1"></i> Quản Trị</a>
+                    <a th:if="${userRole == 'DOCTOR'}" th:href="@{/doctor/dashboard}" class="btn btn-login"><i class="fa-solid fa-user-doctor me-1"></i> Bác Sĩ</a>
+                    <a th:if="${userRole == 'RECEPTIONIST'}" th:href="@{/reception/appointments}" class="btn btn-login"><i class="fa-solid fa-headset me-1"></i> Lễ Tân</a>
+                    <a th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RECEPTIONIST'}" th:href="@{/customer/dashboard}" class="btn btn-login"><i class="fa-regular fa-user me-1"></i> Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Liên Hệ Với Chúng Tôi</h1>
+            <p>Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn</p>
+        </div>
+    </div>
+
+    <div class="container content-section">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h3>Thông Tin Liên Hệ</h3>
+                <p><i class="fa-solid fa-location-dot"></i> Địa chỉ: 85/75 Phú Diễn, Hà Nội</p>
+                <p><i class="fa-solid fa-phone"></i> Số điện thoại: 0879742058</p>
+                <p><i class="fa-solid fa-envelope"></i> Email: contact@c7smile.vn</p>
+                <p><i class="fa-regular fa-clock"></i> Giờ làm việc: <br> Sáng: 08:00 - 11:30 <br> Chiều: 13:00 - 17:00 <br> (Tất cả các ngày trong tuần)</p>
+            </div>
+            
+            <div class="contact-form">
+                <h3>Gửi Tin Nhắn</h3>
+                <form action="#" method="get" onsubmit="alert('Cảm ơn bạn đã gửi tin nhắn. Chúng tôi sẽ liên hệ lại sớm nhất!'); return false;">
+                    <div class="form-group">
+                        <input type="text" placeholder="Họ và Tên" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea rows="4" placeholder="Nội dung tin nhắn..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-booking" style="width: 100%;">Gửi Tin Nhắn</button>
+                </form>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px;">
+            <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Bản đồ" style="width: 100%; height: 300px; object-fit: cover;">
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic.</p>
+        </div>
+    </footer>
+</body>
+</html>

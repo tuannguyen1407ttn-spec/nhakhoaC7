@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${dentist.fullName} + ' - Đội Ngũ Bác Sĩ C7 Smile Clinic'"></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        :root {
+            --primary: #0d9b7a;
+            --primary-dark: #0a6e5c;
+            --primary-light: #14b895;
+            --gold: #d4af37;
+            --text-dark: #1a202c;
+            --text-muted: #718096;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+            margin: 0;
+            padding: 0;
+        }
+
+        .doctor-hero {
+            background: linear-gradient(135deg, #0a6e5c 0%, #0d9b7a 100%);
+            color: white;
+            padding: 50px 0 90px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .breadcrumb a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .main-wrapper {
+            margin-top: -60px;
+            margin-bottom: 80px;
+        }
+
+        .doctor-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 35px;
+            align-items: start;
+        }
+
+        /* Left Column: Doctor Profile Card */
+        .doctor-sidebar-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: sticky;
+            top: 25px;
+        }
+
+        .doctor-img-wrap {
+            width: 100%;
+            height: 380px;
+            position: relative;
+            background: #e2e8f0;
+        }
+        .doctor-avatar-large {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        .doctor-sidebar-body {
+            padding: 30px;
+        }
+
+        .doctor-name-card {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin: 0 0 6px;
+        }
+
+        .doctor-badge-position {
+            display: inline-block;
+            background: rgba(13, 155, 122, 0.1);
+            color: var(--primary-dark);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .doctor-contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px;
+        }
+        .doctor-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 0.92rem;
+            color: #4a5568;
+        }
+        .doctor-contact-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+
+        .btn-book-doctor {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #0d9b7a, #0a6e5c);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-decoration: none;
+            box-shadow: 0 6px 15px rgba(13, 155, 122, 0.3);
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        .btn-book-doctor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 155, 122, 0.4);
+            color: white;
+        }
+
+        /* Right Column: Detailed CV and Information */
+        .doctor-detail-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        /* Quote Banner */
+        .quote-banner {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            border-left: 5px solid var(--primary);
+            border-radius: 0 16px 16px 0;
+            padding: 25px 30px;
+            margin-bottom: 35px;
+            position: relative;
+        }
+        .quote-banner i.fa-quote-left {
+            font-size: 2rem;
+            color: rgba(13, 155, 122, 0.25);
+            position: absolute;
+            top: 15px;
+            left: 15px;
+        }
+        .quote-text {
+            font-size: 1.1rem;
+            font-style: italic;
+            line-height: 1.8;
+            color: #234e45;
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            padding-left: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .section-header:first-of-type {
+            margin-top: 0;
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(13, 155, 122, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .rich-text {
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #4a5568;
+            white-space: pre-line;
+            margin-bottom: 25px;
+        }
+
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .expertise-tag {
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .expertise-tag i {
+            color: var(--primary);
+        }
+
+        @media (max-width: 992px) {
+            .doctor-layout {
+                grid-template-columns: 1fr;
+            }
+            .doctor-img-wrap {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo"><i class="fa-solid fa-tooth"></i> C7 Smile Clinic</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}" class="active">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking">Đặt Lịch</a></li>
+                    <li th:if="${loggedInUser == null}"><a th:href="@{/login}" class="btn btn-login">Đăng Nhập</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/customer/dashboard}" class="btn btn-login">Cá Nhân</a></li>
+                    <li th:if="${loggedInUser != null}"><a th:href="@{/logout}" class="btn" style="color: red; border: 1px solid red;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Header -->
+    <div class="doctor-hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a th:href="@{/}"><i class="fa-solid fa-house"></i> Trang chủ</a> 
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <a th:href="@{/about}">Đội ngũ chuyên gia</a> 
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <span th:text="${dentist.fullName}" style="color: #ffffff; font-weight: 600;"></span>
+            </div>
+            <h1 style="font-size: 2.4rem; font-weight: 800; margin: 0 0 10px;" th:text="${dentist.fullName}"></h1>
+            <p style="font-size: 1.15rem; color: rgba(255,255,255,0.9); margin: 0;" th:text="${dentist.position}"></p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container main-wrapper">
+        <div class="doctor-layout">
+            <!-- Left Sticky Sidebar: Avatar & Quick Info -->
+            <div class="doctor-sidebar-card">
+                <div class="doctor-img-wrap">
+                    <img th:if="${dentist.avatarUrl}" th:src="${dentist.avatarUrl}" alt="Doctor Avatar" class="doctor-avatar-large">
+                    <div th:unless="${dentist.avatarUrl}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #a0aec0; font-size: 5rem;">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                </div>
+                <div class="doctor-sidebar-body">
+                    <h2 class="doctor-name-card" th:text="${dentist.fullName}"></h2>
+                    <div class="doctor-badge-position" th:text="${dentist.position}"></div>
+
+                    <p style="font-size: 0.95rem; color: #718096; line-height: 1.6; margin-bottom: 20px;" th:text="${dentist.shortDescription}"></p>
+
+                    <ul class="doctor-contact-list">
+                        <li class="doctor-contact-item" th:if="${dentist.phone}">
+                            <i class="fa-solid fa-phone"></i>
+                            <div>
+                                <small style="display:block; color:#a0aec0; font-size:0.75rem;">ĐIỆN THOẠI TRỰC TIẾP</small>
+                                <span th:text="${dentist.phone}"></span>
+                            </div>
+                        </li>
+                        <li class="doctor-contact-item" th:if="${dentist.email}">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div>
+                                <small style="display:block; color:#a0aec0; font-size:0.75rem;">EMAIL LIÊN HỆ</small>
+                                <span th:text="${dentist.email}"></span>
+                            </div>
+                        </li>
+                        <li class="doctor-contact-item">
+                            <i class="fa-solid fa-hospital-user"></i>
+                            <div>
+                                <small style="display:block; color:#a0aec0; font-size:0.75rem;">TRẠNG THÁI HOẠT ĐỘNG</small>
+                                <span class="badge bg-success" style="font-size: 0.8rem; background: #38a169; color: white; padding: 2px 8px; border-radius: 4px;">Đang nhận bệnh nhân</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <a th:href="@{/booking(doctorId=${dentist.id})}" class="btn-book-doctor">
+                        <i class="fa-solid fa-calendar-check me-2"></i> Đặt Lịch Khám Với Bác Sĩ
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column: Rich Professional CV -->
+            <div class="doctor-detail-content">
+                <!-- Quote Banner / Triết Lý Y Đức -->
+                <div class="quote-banner" th:if="${dentist.bio != null and !dentist.bio.isEmpty()}">
+                    <i class="fa-solid fa-quote-left"></i>
+                    <p class="quote-text" th:text="${dentist.bio}"></p>
+                </div>
+
+                <!-- Chuyên Môn Điều Trị -->
+                <div class="section-header" th:if="${dentist.expertise != null and !dentist.expertise.isEmpty()}">
+                    <div class="section-icon"><i class="fa-solid fa-stethoscope"></i></div>
+                    <h3 class="section-title">Chuyên Môn &amp; Lĩnh Vực Điều Trị Chuyên Sâu</h3>
+                </div>
+                <div class="rich-text" th:if="${dentist.expertise != null and !dentist.expertise.isEmpty()}" th:text="${dentist.expertise}"></div>
+
+                <!-- Quá Trình Đào Tạo Học Thuật -->
+                <div class="section-header" th:if="${dentist.training != null and !dentist.training.isEmpty()}">
+                    <div class="section-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3 class="section-title">Quá Trình Đào Tạo &amp; Học Vấn</h3>
+                </div>
+                <div class="rich-text" th:if="${dentist.training != null and !dentist.training.isEmpty()}" th:text="${dentist.training}"></div>
+
+                <!-- Kinh Nghiệm Công Tác -->
+                <div class="section-header" th:if="${dentist.experience != null and !dentist.experience.isEmpty()}">
+                    <div class="section-icon"><i class="fa-solid fa-briefcase"></i></div>
+                    <h3 class="section-title">Kinh Nghiệm Công Tác Thực Tế</h3>
+                </div>
+                <div class="rich-text" th:if="${dentist.experience != null and !dentist.experience.isEmpty()}" th:text="${dentist.experience}"></div>
+
+                <!-- Chứng Chỉ Hành Nghề Quốc Tế -->
+                <div class="section-header" th:if="${dentist.certificates != null and !dentist.certificates.isEmpty()}">
+                    <div class="section-icon"><i class="fa-solid fa-certificate"></i></div>
+                    <h3 class="section-title">Chứng Chỉ Chuyên Môn &amp; Hiệp Hội Quốc Tế</h3>
+                </div>
+                <div class="rich-text" th:if="${dentist.certificates != null and !dentist.certificates.isEmpty()}" th:text="${dentist.certificates}"></div>
+
+                <!-- Thành Tựu & Công Trình Nghiên Cứu -->
+                <div class="section-header" th:if="${dentist.achievements != null and !dentist.achievements.isEmpty()}">
+                    <div class="section-icon"><i class="fa-solid fa-trophy"></i></div>
+                    <h3 class="section-title">Thành Tựu Y Khoa &amp; Giải Thưởng</h3>
+                </div>
+                <div class="rich-text" th:if="${dentist.achievements != null and !dentist.achievements.isEmpty()}" th:text="${dentist.achievements}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. Hệ Thống Nha Khoa Kỹ Thuật Số Quốc Tế.</p>
+        </div>
+    </footer>
+</body>
+</html>

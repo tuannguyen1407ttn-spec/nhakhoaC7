@@ -1,0 +1,3 @@
+-- Data initialization is now handled by DataInitializer.java
+-- This file is kept for reference only.
+-- Admin login: admin@c7smile.com / admin123

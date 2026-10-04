@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Thông Tin Khách Hàng - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/extra.css}">
+    <style>
+        /* Unified Customer Portal Styles */
+        .dashboard-hero {
+            background: linear-gradient(135deg, var(--primary-dark, #095c61) 0%, var(--primary-color, #0e7a81) 40%, var(--primary-light, #15aabf) 100%);
+            color: white; padding: 55px 0 75px; text-align: center;
+        }
+        .dashboard-hero h1 { font-size: 2.1rem; font-weight: 700; margin-bottom: 8px; }
+        .dashboard-hero p { font-size: 1.05rem; opacity: 0.92; margin: 0; }
+
+        .dashboard-content { max-width: 1150px; margin: -38px auto 60px; padding: 0 20px; position: relative; z-index: 10; }
+
+        /* Unified Navigation Tabs */
+        .customer-nav-tabs {
+            display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+            background: white; padding: 8px 12px; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+        .customer-tab-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+            border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #4a5568;
+            text-decoration: none; border: none; background: transparent; cursor: pointer;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif;
+        }
+        .customer-tab-btn:hover { color: var(--primary-color, #0e7a81); background: rgba(14,122,129,0.06); }
+        .customer-tab-btn.active { background: var(--primary-color, #0e7a81); color: white; }
+        .customer-tab-btn.highlight { margin-left: auto; background: #e6fffa; color: #0e7a81; border: 1px solid #b2f5ea; }
+        .customer-tab-btn.highlight:hover { background: #0e7a81; color: white; }
+
+        /* Stat Cards */
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px; }
+        .stat-card {
+            background: white; border-radius: 14px; padding: 20px 22px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.05); border: 1px solid #edf2f7;
+            display: flex; align-items: center; gap: 16px; cursor: pointer;
+            transition: all 0.25s ease; text-decoration: none;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-color: #cbd5e0; }
+        .stat-icon {
+            width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;
+        }
+        .stat-icon.blue { background: rgba(66,153,225,0.12); color: #3182ce; }
+        .stat-icon.green { background: rgba(72,187,120,0.12); color: #38a169; }
+        .stat-icon.purple { background: rgba(159,122,234,0.12); color: #805ad5; }
+        .stat-icon.orange { background: rgba(237,137,54,0.12); color: #dd6b20; }
+        .stat-info h3 { font-size: 1.45rem; font-weight: 700; color: #2d3748; margin: 0; }
+        .stat-info p { font-size: 0.85rem; color: #718096; margin: 2px 0 0; }
+
+        /* Content Sections */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .content-card {
+            background: white; border-radius: 16px; padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        @media (max-width: 820px) { .content-grid { grid-template-columns: 1fr; } }
+
+        .section-card {
+            background: white; border-radius: 16px; padding: 26px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #edf2f7;
+        }
+        .section-card h4 { font-weight: 700; color: #2d3748; margin-bottom: 20px; font-size: 1.1rem; }
+
+        /* Table Styles */
+        .appointment-table, .invoice-table { width: 100%; border-collapse: collapse; }
+        .appointment-table th, .invoice-table th {
+            background: #f8fafc; padding: 12px 16px; text-align: left;
+            font-weight: 600; font-size: 0.82rem; color: #4a5568;
+            border-bottom: 2px solid #edf2f7; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .appointment-table td, .invoice-table td {
+            padding: 14px 16px; border-bottom: 1px solid #edf2f7;
+            font-size: 0.9rem; color: #2d3748; vertical-align: middle;
+        }
+        .appointment-table tr:hover, .invoice-table tr:hover { background: #fbfcfe; }
+
+        .badge-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-pending { background: #fefcbf; color: #975a16; }
+        .badge-confirmed { background: #bee3f8; color: #2a69ac; }
+        .badge-completed { background: #c6f6d5; color: #276749; }
+        .badge-cancelled { background: #fed7d7; color: #9b2c2c; }
+
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .status-PAID { background: #c6f6d5; color: #22543d; }
+        .status-PARTIALLY_PAID { background: #feebc8; color: #c05621; }
+        .status-UNPAID { background: #fed7d7; color: #9b2c2c; }
+
+        /* Patient Cards */
+        .patient-item {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 20px 24px; margin-bottom: 16px; transition: all 0.25s;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+        }
+        .patient-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateY(-2px); border-color: var(--primary-light, #15aabf); }
+        .patient-info { display: flex; align-items: center; gap: 16px; }
+        .patient-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(14,122,129,0.1); color: var(--primary-color, #0e7a81);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .patient-details h5 { margin: 0 0 4px 0; font-weight: 600; color: #2d3748; font-size: 1rem; }
+        .patient-details p { margin: 0; font-size: 0.85rem; color: #718096; }
+        .badge-linked {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #f0fff4; border: 1px solid #c6f6d5; color: #276749;
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+        }
+
+        /* Medical Record Cards */
+        .record-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 22px; margin-bottom: 20px; transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .record-card:hover { border-color: var(--primary-light, #15aabf); box-shadow: 0 8px 25px rgba(14,122,129,0.08); }
+        .record-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f4f8; padding-bottom: 12px; margin-bottom: 14px;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .record-date { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #2d3748; font-size: 1rem; }
+        .record-badge { background: rgba(14,122,129,0.1); color: var(--primary-color, #0e7a81); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .record-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 14px; }
+        .field-label { color: #718096; font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .field-value { color: #2d3748; font-weight: 500; font-size: 0.9rem; }
+        .record-notes-box {
+            background: #f8fafc; border-radius: 10px; padding: 12px 16px;
+            border-left: 4px solid var(--primary-color, #0e7a81); margin-top: 12px;
+        }
+        .record-notes-box h6 { font-size: 0.85rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+        .record-notes-box p { font-size: 0.88rem; color: #4a5568; margin: 0; line-height: 1.6; }
+
+        .btn-custom {
+            display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px;
+            background: var(--primary-color, #0e7a81); color: white; border-radius: 10px;
+            text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: all 0.25s; border: none; cursor: pointer;
+        }
+        .btn-custom:hover { background: var(--primary-dark, #095c61); color: white; transform: translateY(-2px); }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: #a0aec0; }
+        .empty-state i { font-size: 3rem; margin-bottom: 14px; display: block; color: #cbd5e0; }
+        .empty-state h5 { color: #4a5568; font-weight: 700; margin-bottom: 6px; }
+        .empty-state p { color: #718096; margin-bottom: 16px; font-size: 0.9rem; }
+
+        .alert-booking {
+            background: #c6f6d5; border: 1px solid #9ae6b4; color: #22543d;
+            padding: 14px 20px; border-radius: 12px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 12px; font-size: 0.92rem;
+        }
+        .alert-booking .close-btn { margin-left: auto; background: none; border: none; color: #22543d; font-size: 1.2rem; cursor: pointer; opacity: 0.6; }
+
+        .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .modal-header { border-bottom: 1px solid #edf2f7; padding: 18px 24px; }
+        .modal-body { padding: 22px 24px; }
+        .modal-footer { border-top: 1px solid #edf2f7; padding: 14px 24px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}">Trang Chủ</a></li>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    <li><a th:href="@{/news}">Tin Tức</a></li>
+                    <li><a th:href="@{/booking}" class="btn btn-booking"><i class="fa-regular fa-calendar-check"></i> Đặt Lịch</a></li>
+                    <li><a th:href="@{/customer/dashboard}" class="btn btn-login active"><i class="fa-regular fa-user"></i> Cá Nhân</a></li>
+                    <li><a th:href="@{/logout}" class="btn" style="color: #e74c3c; border: 2px solid #e74c3c;">Đăng Xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Dashboard Hero (Cố định, không bị nhảy khi chuyển tab) -->
+    <section class="dashboard-hero">
+        <h1>Xin chào, <span th:text="${loggedInUser != null ? loggedInUser.fullName : 'Khách hàng'}">User</span>! 👋</h1>
+        <p>Cổng thông tin khách hàng - Quản lý lịch hẹn, hồ sơ bệnh nhân và theo dõi sức khỏe tại C7 Smile Clinic.</p>
+    </section>
+
+    <!-- Unified Dashboard Content Container (max-width: 1150px cố định) -->
+    <div class="dashboard-content">
+
+        <!-- Unified Navigation Tabs -->
+        <div class="customer-nav-tabs">
+            <button class="customer-tab-btn" data-target="tab-overview">
+                <i class="fa-solid fa-gauge-high"></i> Tổng quan & Lịch hẹn
+            </button>
+            <button class="customer-tab-btn" data-target="tab-patients">
+                <i class="fa-solid fa-users"></i> Người thân & Hồ sơ
+            </button>
+            <button class="customer-tab-btn" data-target="tab-records">
+                <i class="fa-solid fa-notes-medical"></i> Lịch sử khám
+            </button>
+            <button class="customer-tab-btn" data-target="tab-invoices">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn & Thanh toán
+            </button>
+            <button class="customer-tab-btn" data-target="tab-profile">
+                <i class="fa-solid fa-user-gear"></i> Tài khoản cá nhân
+            </button>
+            <a th:href="@{/booking}" class="customer-tab-btn highlight">
+                <i class="fa-regular fa-calendar-check"></i> Đặt lịch hẹn mới
+            </a>
+        </div>
+
+        <!-- Success Alert -->
+        <div th:if="${successMessage}" class="alert-booking">
+            <i class="fa-solid fa-check-circle" style="font-size:1.1rem;"></i>
+            <span th:text="${successMessage}"></span>
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+
+        <!-- Stat Cards Row (Clicking any card smoothly opens that tab) -->
+        <div class="stat-cards">
+            <div class="stat-card" onclick="switchCustomerTab('tab-overview')">
+                <div class="stat-icon blue"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${appointmentCount ?: 0}">0</h3>
+                    <p>Lịch hẹn</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="switchCustomerTab('tab-records')">
+                <div class="stat-icon green"><i class="fa-solid fa-notes-medical"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${medicalRecordCount ?: 0}">0</h3>
+                    <p>Hồ sơ khám</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="switchCustomerTab('tab-invoices')">
+                <div class="stat-icon purple"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${invoiceCount ?: 0}">0</h3>
+                    <p>Hóa đơn</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="switchCustomerTab('tab-patients')">
+                <div class="stat-icon orange"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info">
+                    <h3 th:text="${patientCount ?: 0}">0</h3>
+                    <p>Bệnh nhân</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 1: TỔNG QUAN & LỊCH HẸN ================= -->
+        <div id="tab-overview" class="tab-panel">
+            <div class="content-grid">
+                <!-- Appointments -->
+                <div class="section-card">
+                    <h4><i class="fa-solid fa-calendar-day" style="color:#4299e1; margin-right:8px;"></i>Lịch hẹn khám gần đây</h4>
+
+                    <div th:if="${appointments == null || appointments.isEmpty()}" class="empty-state">
+                        <i class="fa-regular fa-calendar"></i>
+                        <h5>Bạn chưa có lịch hẹn nào</h5>
+                        <p>Hãy đặt lịch hẹn ngay để được các bác sĩ nha khoa hàng đầu thăm khám và tư vấn tận tâm.</p>
+                        <a th:href="@{/booking}" class="btn-custom">
+                            <i class="fa-solid fa-plus"></i> Đặt lịch ngay
+                        </a>
+                    </div>
+
+                    <div th:if="${appointments != null && !appointments.isEmpty()}" style="overflow-x:auto;">
+                        <table class="appointment-table">
+                            <thead>
+                                <tr><th>Ngày</th><th>Giờ</th><th>Dịch vụ</th><th>Người khám</th><th>Trạng thái</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="apt : ${appointments}">
+                                    <td class="fw-semibold" th:text="${apt.appointmentDate}"></td>
+                                    <td th:text="${apt.timeSlot}"></td>
+                                    <td th:text="${apt.service != null ? apt.service.name : 'N/A'}"></td>
+                                    <td th:text="${apt.patient != null ? apt.patient.fullName : 'N/A'}"></td>
+                                    <td>
+                                        <span th:if="${apt.status == 'PENDING'}" class="badge-status badge-pending">Chờ xác nhận</span>
+                                        <span th:if="${apt.status == 'CONFIRMED'}" class="badge-status badge-confirmed">Đã xác nhận</span>
+                                        <span th:if="${apt.status == 'COMPLETED'}" class="badge-status badge-completed">Hoàn thành</span>
+                                        <span th:if="${apt.status == 'CANCELLED'}" class="badge-status badge-cancelled">Đã hủy</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="section-card">
+                    <h4><i class="fa-solid fa-circle-info" style="color:var(--primary-color, #0e7a81); margin-right:8px;"></i>Thông tin hỗ trợ</h4>
+                    <p style="font-size:0.92rem; color:#718096; line-height:1.8;">
+                        Nếu Quý khách cần dời lịch, hủy hẹn hoặc cần hỗ trợ y tế khẩn cấp, xin vui lòng liên hệ:<br>
+                        <strong style="color:#2d3748;"><i class="fa-solid fa-phone text-primary me-2"></i>Hotline:</strong> 0879 742 058<br>
+                        <strong style="color:#2d3748;"><i class="fa-regular fa-envelope text-primary me-2"></i>Email:</strong> info@c7smile.com<br>
+                        <strong style="color:#2d3748;"><i class="fa-regular fa-clock text-primary me-2"></i>Giờ làm việc:</strong> 8:00 - 20:00 (T2 - CN)<br>
+                        <strong style="color:#2d3748;"><i class="fa-solid fa-location-dot text-primary me-2"></i>Địa chỉ:</strong> 85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: NGƯỜI THÂN & HỒ SƠ BỆNH NHÂN ================= -->
+        <div id="tab-patients" class="tab-panel">
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 fw-bold" style="color: #2d3748;">
+                            <i class="fa-solid fa-users text-primary me-2"></i>Danh sách hồ sơ bệnh nhân
+                        </h4>
+                        <p class="text-muted small m-0 mt-1">Quản lý thông tin khám bệnh của bạn và các thành viên người thân trong gia đình</p>
+                    </div>
+                    <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#patientModal">
+                        <i class="fa-solid fa-plus"></i> Thêm Hồ Sơ Mới
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${patients == null || patients.isEmpty()}" class="empty-state">
+                    <i class="fa-solid fa-users"></i>
+                    <h5>Chưa có hồ sơ bệnh nhân</h5>
+                    <p>Bạn có thể tạo hồ sơ cho chính mình hoặc người thân để thuận tiện đặt lịch khám nha khoa.</p>
+                    <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#patientModal">
+                        <i class="fa-solid fa-plus"></i> Tạo hồ sơ ngay
+                    </button>
+                </div>
+
+                <!-- Patient List -->
+                <div th:if="${patients != null && !patients.isEmpty()}">
+                    <div th:each="patient : ${patients}" class="patient-item">
+                        <div class="patient-info">
+                            <div class="patient-avatar">
+                                <i th:if="${patient.gender == 'Nam'}" class="fa-solid fa-person"></i>
+                                <i th:if="${patient.gender == 'Nữ'}" class="fa-solid fa-person-dress"></i>
+                                <i th:if="${patient.gender != 'Nam' && patient.gender != 'Nữ'}" class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="patient-details">
+                                <h5 th:text="${patient.fullName}">Nguyễn Văn A</h5>
+                                <p>
+                                    <i class="fa-solid fa-venus-mars me-1"></i>
+                                    <span th:text="${patient.gender != null ? patient.gender : 'Chưa rõ'}"></span>
+                                    &nbsp;|&nbsp;
+                                    <i class="fa-solid fa-phone me-1"></i>
+                                    <span th:text="${patient.phone != null ? patient.phone : 'Chưa cập nhật'}"></span>
+                                    &nbsp;|&nbsp;
+                                    <i class="fa-solid fa-cake-candles me-1"></i>
+                                    <span th:text="${patient.dob != null ? patient.dob : 'Chưa cập nhật'}"></span>
+                                </p>
+                            </div>
+                        </div>
+                        <span class="badge-linked"><i class="fa-solid fa-check"></i> Đã liên kết tài khoản</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: LỊCH SỬ KHÁM BỆNH ================= -->
+        <div id="tab-records" class="tab-panel">
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 fw-bold" style="color: #2d3748;">
+                            <i class="fa-solid fa-clipboard-list text-primary me-2"></i>Lịch sử khám & Điều trị
+                        </h4>
+                        <p class="text-muted small m-0 mt-1">Kết quả chẩn đoán, phác đồ điều trị và hướng dẫn chăm sóc từ bác sĩ</p>
+                    </div>
+                    <span class="text-muted small" th:if="${records != null}">
+                        Tổng cộng: <strong th:text="${records.size()}">0</strong> buổi khám
+                    </span>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${records == null || records.isEmpty()}" class="empty-state">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <h5>Chưa có hồ sơ khám bệnh nào</h5>
+                    <p>Sau khi hoàn tất buổi thăm khám tại phòng khám, kết quả chẩn đoán và điều trị của bác sĩ sẽ hiển thị tại đây.</p>
+                    <a th:href="@{/booking}" class="btn-custom">
+                        <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám ngay
+                    </a>
+                </div>
+
+                <!-- Record List -->
+                <div th:if="${records != null && !records.isEmpty()}">
+                    <div th:each="record : ${records}" class="record-card">
+                        <div class="record-header">
+                            <div class="record-date">
+                                <i class="fa-regular fa-calendar-check text-primary"></i>
+                                <span th:text="${#temporals.format(record.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 09:00</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="record-badge" th:text="'Hồ sơ #' + ${record.id}">HS-01</span>
+                                <span th:if="${record.appointment != null}" class="badge bg-light text-secondary border">
+                                    Lịch hẹn #<span th:text="${record.appointment.id}"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="record-grid">
+                            <div>
+                                <div class="field-label">Người Khám (Bệnh nhân)</div>
+                                <div class="field-value">
+                                    <i class="fa-solid fa-user me-1 text-muted"></i>
+                                    <strong th:text="${record.patient != null ? record.patient.fullName : 'Chưa cập nhật'}">Nguyễn Văn A</strong>
+                                    <span class="text-muted small" th:if="${record.patient != null && record.patient.phone != null}" th:text="' (' + ${record.patient.phone} + ')'"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="field-label">Bác Sĩ Phụ Trách</div>
+                                <div class="field-value" style="color:#0e7a81; font-weight:600;">
+                                    <i class="fa-solid fa-user-doctor me-1"></i>
+                                    <span th:text="${record.doctor != null ? record.doctor.fullName : 'Bác sĩ chuyên khoa'}">BS. C7 Smile</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="field-label">Dịch Vụ Khám</div>
+                                <div class="field-value">
+                                    <i class="fa-solid fa-tooth me-1 text-muted"></i>
+                                    <span th:text="${record.appointment != null && record.appointment.service != null ? record.appointment.service.name : 'Khám & Tư vấn tổng quát'}">Khám tổng quát</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="field-label">Triệu Chứng Ban Đầu</div>
+                                <div class="field-value" th:text="${record.symptoms != null && !record.symptoms.isEmpty() ? record.symptoms : 'Không có triệu chứng bất thường'}">
+                                    Đau nhức nhẹ
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="field-label">Kết Quả Chẩn Đoán</div>
+                                <div class="p-3 bg-light rounded-3 text-dark fw-medium" th:text="${record.diagnosis != null && !record.diagnosis.isEmpty() ? record.diagnosis : 'Đã khám kiểm tra tổng quát'}">
+                                    Viêm lợi nhẹ
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="field-label">Phương Pháp / Quá Trình Điều Trị</div>
+                                <div class="p-3 bg-light rounded-3 text-dark" th:text="${record.treatment != null && !record.treatment.isEmpty() ? record.treatment : 'Vệ sinh khoang miệng và bôi thuốc'}">
+                                    Lấy cao răng và vệ sinh răng miệng
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="record-notes-box" th:if="${record.notes != null && !record.notes.isEmpty()}">
+                            <h6><i class="fa-solid fa-comment-medical text-primary me-2"></i>Lời dặn & Hướng dẫn chăm sóc của Bác sĩ:</h6>
+                            <p th:text="${record.notes}">Đánh răng 2 lần/ngày, tái khám sau 6 tháng.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: HÓA ĐƠN & THANH TOÁN ================= -->
+        <div id="tab-invoices" class="tab-panel">
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 fw-bold" style="color: #2d3748;">
+                            <i class="fa-solid fa-receipt text-primary me-2"></i>Lịch sử hóa đơn & Thanh toán
+                        </h4>
+                        <p class="text-muted small m-0 mt-1">Minh bạch chi phí dịch vụ khám chữa bệnh và trạng thái thanh toán</p>
+                    </div>
+                    <span class="text-muted small" th:if="${invoices != null}">
+                        Tổng cộng: <strong th:text="${invoices.size()}">0</strong> hóa đơn
+                    </span>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${invoices == null || invoices.isEmpty()}" class="empty-state">
+                    <i class="fa-solid fa-receipt"></i>
+                    <h5>Chưa có hóa đơn nào</h5>
+                    <p>Hóa đơn sẽ được tạo tự động sau khi bạn thực hiện các dịch vụ tại phòng khám.</p>
+                    <a th:href="@{/booking}" class="btn-custom">
+                        <i class="fa-solid fa-calendar-plus"></i> Đặt lịch khám ngay
+                    </a>
+                </div>
+
+                <!-- Table -->
+                <div th:if="${invoices != null && !invoices.isEmpty()}" style="overflow-x:auto;">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Mã HĐ</th>
+                                <th>Ngày Tạo</th>
+                                <th>Bệnh Nhân</th>
+                                <th>Dịch Vụ</th>
+                                <th>Tổng Tiền</th>
+                                <th>Đã Thu</th>
+                                <th>Còn Lại</th>
+                                <th>Trạng Thái</th>
+                                <th class="text-end">Chi Tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inv : ${invoices}">
+                                <td><strong style="color: var(--primary-color, #0e7a81);" th:text="'#HD-' + ${inv.id}">#HD-01</strong></td>
+                                <td th:text="${#temporals.format(inv.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                                <td>
+                                    <strong th:text="${inv.patient != null ? inv.patient.fullName : 'N/A'}">Nguyễn Văn A</strong>
+                                    <br><small class="text-muted" th:text="${inv.patient != null ? inv.patient.phone : ''}"></small>
+                                </td>
+                                <td>
+                                    <span th:text="${inv.appointment != null && inv.appointment.service != null ? inv.appointment.service.name : 'Dịch vụ nha khoa'}">Khám răng</span>
+                                </td>
+                                <td class="fw-bold" th:text="${#numbers.formatDecimal(inv.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    500,000 đ
+                                </td>
+                                <td class="text-success fw-bold" th:text="${#numbers.formatDecimal(inv.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    500,000 đ
+                                </td>
+                                <td>
+                                    <span th:with="remaining=${inv.totalAmount - inv.paidAmount}"
+                                          th:class="${remaining > 0 ? 'text-danger fw-bold' : 'text-muted'}"
+                                          th:text="${#numbers.formatDecimal(remaining, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                        0 đ
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:if="${inv.status == 'PAID'}" class="status-badge status-PAID"><i class="fa-solid fa-check me-1"></i>Đã thanh toán</span>
+                                    <span th:if="${inv.status == 'PARTIALLY_PAID'}" class="status-badge status-PARTIALLY_PAID"><i class="fa-solid fa-clock-rotate-left me-1"></i>Thanh toán một phần</span>
+                                    <span th:if="${inv.status == 'UNPAID'}" class="status-badge status-UNPAID"><i class="fa-solid fa-exclamation me-1"></i>Chưa thanh toán</span>
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" th:data-bs-target="'#invoiceModal' + ${inv.id}">
+                                        <i class="fa-regular fa-file-lines me-1"></i> Xem
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: THÔNG TIN TÀI KHOẢN ================= -->
+        <div id="tab-profile" class="tab-panel">
+            <div class="content-card" style="max-width: 750px; margin: 0 auto;">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color, #0e7a81), #15aabf); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700;">
+                        <span th:text="${loggedInUser != null && loggedInUser.fullName != null && !loggedInUser.fullName.isEmpty() ? loggedInUser.fullName.substring(0,1).toUpperCase() : 'U'}">U</span>
+                    </div>
+                    <div>
+                        <h4 class="m-0 fw-bold" style="color: #2d3748;">Thông Tin Tài Khoản</h4>
+                        <p class="text-muted small m-0">Quản lý và cập nhật thông tin cá nhân của bạn</p>
+                    </div>
+                </div>
+
+                <div th:if="${profileSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-check-circle me-2"></i><span th:text="${profileSuccess}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${profileError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${profileError}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form th:action="@{/customer/profile/update}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email / Tên đăng nhập</label>
+                        <input type="text" class="form-control" th:value="${loggedInUser != null ? loggedInUser.username : ''}" readonly style="background-color: #f7fafc; cursor: not-allowed; border-color: #e2e8f0;">
+                        <small class="text-muted">Tên tài khoản dùng để đăng nhập, không thể thay đổi</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" name="fullName" class="form-control" th:value="${loggedInUser != null ? loggedInUser.fullName : ''}" required placeholder="Nhập họ và tên của bạn">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="text" name="phone" class="form-control" th:value="${loggedInUser != null ? loggedInUser.phone : ''}" required placeholder="0xxx xxx xxx">
+                    </div>
+
+                    <div class="p-3 rounded-3 mb-4" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                        <h6 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-key me-2 text-primary"></i>Đổi mật khẩu đăng nhập (Tùy chọn)</h6>
+                        <p class="small text-muted mb-3">Nếu không muốn đổi mật khẩu, bạn chỉ cần để trống phần này.</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Mật khẩu hiện tại</label>
+                            <input type="password" name="currentPassword" class="form-control" placeholder="Nhập mật khẩu hiện tại nếu muốn đổi">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small fw-semibold">Mật khẩu mới</label>
+                                <input type="password" name="newPassword" class="form-control" placeholder="Tối thiểu 6 ký tự">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small fw-semibold">Xác nhận mật khẩu mới</label>
+                                <input type="password" name="confirmPassword" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn-custom" style="padding: 11px 30px; font-size: 0.95rem;">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Lưu Thay Đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Thêm Bệnh Nhân -->
+    <div class="modal fade" id="patientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form th:action="@{/customer/patients/save}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" style="color: #2d3748;">
+                            <i class="fa-solid fa-user-plus text-primary me-2"></i>Thêm Hồ Sơ Bệnh Nhân
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="fullName" class="form-control" required placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Số điện thoại</label>
+                                <input type="text" name="phone" class="form-control" placeholder="0xxx xxx xxx">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Ngày sinh</label>
+                                <input type="date" name="dob" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Giới tính</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Số CCCD</label>
+                                <input type="text" name="cccd" class="form-control" placeholder="Số căn cước">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Địa chỉ</label>
+                            <input type="text" name="address" class="form-control" placeholder="Địa chỉ hiện tại">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ghi chú y tế (Dị ứng, tiền sử bệnh...)</label>
+                            <textarea name="medicalHistoryNotes" class="form-control" rows="2" placeholder="Ghi chú thêm nếu có"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius:10px;">Hủy</button>
+                        <button type="submit" class="btn-custom">Lưu Hồ Sơ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Chi Tiết Hóa Đơn -->
+    <div th:if="${invoices != null}">
+        <div th:each="inv : ${invoices}" class="modal fade" th:id="'invoiceModal' + ${inv.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" style="color: #2d3748;">
+                            <i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>Chi Tiết Hóa Đơn #HD-<span th:text="${inv.id}"></span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Ngày lập:</span>
+                                <strong th:text="${#temporals.format(inv.createdAt, 'dd/MM/yyyy HH:mm')}"></strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Bệnh nhân:</span>
+                                <strong th:text="${inv.patient != null ? inv.patient.fullName : ''}"></strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Số điện thoại:</span>
+                                <span th:text="${inv.patient != null ? inv.patient.phone : ''}"></span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Dịch vụ:</span>
+                                <span class="fw-semibold" th:text="${inv.appointment != null && inv.appointment.service != null ? inv.appointment.service.name : 'Dịch vụ nha khoa'}"></span>
+                            </div>
+                        </div>
+
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span>Tổng tiền dịch vụ:</span>
+                                <strong class="fs-6" th:text="${#numbers.formatDecimal(inv.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 text-success">
+                                <span>Đã thanh toán:</span>
+                                <strong class="fs-6" th:text="${#numbers.formatDecimal(inv.paidAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0" th:with="debt=${inv.totalAmount - inv.paidAmount}">
+                                <span class="fw-bold">Còn lại:</span>
+                                <strong th:class="${debt > 0 ? 'fs-5 text-danger' : 'fs-6 text-muted'}"
+                                        th:text="${#numbers.formatDecimal(debt, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                            </li>
+                        </ul>
+
+                        <div th:if="${inv.totalAmount - inv.paidAmount > 0}" class="alert alert-warning mb-0" style="font-size:0.85rem; border-radius:10px;">
+                            <i class="fa-solid fa-info-circle me-1"></i> <strong>Hướng dẫn chuyển khoản:</strong><br>
+                            • Ngân hàng: <strong>MB Bank</strong><br>
+                            • STK: <strong>0879742058</strong><br>
+                            • Chủ TK: <strong>C7 SMILE CLINIC</strong><br>
+                            • Nội dung: <strong>HD<span th:text="${inv.id}"></span> <span th:text="${inv.patient != null ? inv.patient.fullName : ''}"></span></strong>
+                        </div>
+                        <div th:if="${inv.totalAmount - inv.paidAmount <= 0}" class="alert alert-success mb-0 text-center" style="font-size:0.9rem; border-radius:10px;">
+                            <i class="fa-solid fa-circle-check me-1"></i> Hóa đơn đã được thanh toán đầy đủ. Cảm ơn Quý khách!
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="background: var(--primary-color, #0e7a81); border:none;">
+                            <i class="fa-solid fa-print me-1"></i> In hóa đơn
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer giống trang chủ -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="#" class="logo-footer">
+                        <i class="fa-solid fa-tooth"></i> C7 Smile Clinic
+                    </a>
+                    <p>Phòng khám nha khoa tiêu chuẩn quốc tế. Chúng tôi cam kết mang đến dịch vụ chăm sóc răng miệng chất lượng cao, an toàn và tận tâm nhất.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Truy Cập Nhanh</h3>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Trang Chủ</a></li>
+                        <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                        <li><a th:href="@{/about}">Về Chúng Tôi</a></li>
+                        <li><a th:href="@{/booking}">Đặt Lịch Khám</a></li>
+                        <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Hệ</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fa-solid fa-location-dot"></i><span>85/75 Phú Diễn, Bắc Từ Liêm, Hà Nội</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>Hotline: <strong>0879 742 058</strong></span></li>
+                        <li><i class="fa-regular fa-envelope"></i><span>info@c7smile.com</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 C7 Smile Clinic. All rights reserved. | Thiết kế bởi C7 Team</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+    function switchCustomerTab(targetId) {
+        // Hide all tab panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        // Deactivate all buttons
+        document.querySelectorAll('.customer-tab-btn[data-target]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Activate target panel
+        const targetPanel = document.getElementById(targetId);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+
+        // Activate target button
+        const activeBtn = document.querySelector(`.customer-tab-btn[data-target="${targetId}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+
+        // Update URL param without page reload
+        const shortName = targetId.replace('tab-', '');
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('tab', shortName);
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Tab button click events
+        document.querySelectorAll('.customer-tab-btn[data-target]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = btn.getAttribute('data-target');
+                switchCustomerTab(target);
+            });
+        });
+
+        // Read active tab from server model or URL
+        const serverActiveTab = /*[[${activeTab}]]*/ 'overview';
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryTab = urlParams.get('tab') || serverActiveTab;
+
+        if (queryTab === 'patients') {
+            switchCustomerTab('tab-patients');
+        } else if (queryTab === 'records' || queryTab === 'medical-records') {
+            switchCustomerTab('tab-records');
+        } else if (queryTab === 'invoices') {
+            switchCustomerTab('tab-invoices');
+        } else if (queryTab === 'profile') {
+            switchCustomerTab('tab-profile');
+        } else {
+            switchCustomerTab('tab-overview');
+        }
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        }, { passive: true });
+    });
+    </script>
+</body>
+</html>

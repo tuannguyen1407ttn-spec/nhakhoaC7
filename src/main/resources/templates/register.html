@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - C7 Smile Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0d9b7a; --primary-dark: #0a6e5c; --primary-light: #14b895;
+            --bg: #f4f7fa; --text: #2d3748; --text-light: #718096;
+            --danger: #e53e3e; --success: #38a169;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; min-height:100vh; display:flex; background:var(--bg); }
+
+        .reg-left {
+            flex:0 0 45%; display:flex; flex-direction:column; justify-content:center; align-items:center;
+            padding:60px; color:white; position:relative; overflow:hidden;
+            background:linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 40%, var(--primary-light) 100%);
+        }
+        .reg-left::before {
+            content:''; position:absolute; width:500px; height:500px; border-radius:50%;
+            background:rgba(255,255,255,0.06); top:-120px; right:-120px;
+        }
+        .reg-left::after {
+            content:''; position:absolute; width:350px; height:350px; border-radius:50%;
+            background:rgba(255,255,255,0.04); bottom:-80px; left:-80px;
+        }
+        .brand-logo { font-size:2.2rem; font-weight:800; margin-bottom:16px; position:relative; z-index:1; }
+        .brand-logo i { margin-right:10px; }
+        .brand-text { font-size:1rem; opacity:0.9; max-width:380px; text-align:center; line-height:1.7; position:relative; z-index:1; }
+        .benefit-list { list-style:none; margin-top:40px; position:relative; z-index:1; }
+        .benefit-list li { display:flex; align-items:center; gap:12px; margin-bottom:16px; font-size:0.95rem; opacity:0.9; }
+        .benefit-list li i { font-size:1.1rem; color:rgba(255,215,0,0.9); }
+
+        .reg-right {
+            flex:0 0 55%; display:flex; justify-content:center; align-items:center;
+            padding:40px 60px; overflow-y:auto;
+        }
+        .reg-card { width:100%; max-width:500px; }
+        .reg-card h2 { color:var(--text); font-size:1.8rem; font-weight:700; margin-bottom:6px; }
+        .reg-card .subtitle { color:var(--text-light); font-size:0.95rem; margin-bottom:28px; }
+
+        .alert {
+            padding:12px 16px; border-radius:10px; font-size:0.9rem; margin-bottom:20px;
+            display:flex; align-items:center; gap:10px;
+        }
+        .alert-error { background:#fed7d7; color:var(--danger); border:1px solid #feb2b2; }
+
+        .form-row { display:flex; gap:16px; }
+        .form-row .input-group { flex:1; }
+
+        .input-group { position:relative; margin-bottom:18px; }
+        .input-group label { display:block; font-size:0.85rem; font-weight:600; color:var(--text); margin-bottom:6px; }
+        .input-group i.icon {
+            position:absolute; left:14px; bottom:14px; color:var(--text-light); font-size:0.9rem;
+        }
+        .input-group input {
+            width:100%; padding:12px 14px 12px 40px;
+            border:2px solid #e2e8f0; border-radius:10px;
+            font-size:0.92rem; font-family:'Inter',sans-serif;
+            transition:all 0.3s; background:white; color:var(--text);
+        }
+        .input-group input:focus {
+            outline:none; border-color:var(--primary);
+            box-shadow:0 0 0 3px rgba(13,155,122,0.1);
+        }
+        .input-group input::placeholder { color:#a0aec0; }
+
+        .btn-submit {
+            width:100%; padding:14px; margin-top:6px;
+            background:var(--primary); color:white; border:none; border-radius:12px;
+            font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.3s;
+            font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+        .btn-submit:hover {
+            background:var(--primary-dark); transform:translateY(-2px);
+            box-shadow:0 6px 20px rgba(13,155,122,0.3);
+        }
+        .links { text-align:center; margin-top:24px; }
+        .links p { color:var(--text-light); font-size:0.9rem; margin-bottom:8px; }
+        .links a { color:var(--primary); font-weight:600; text-decoration:none; }
+        .links a:hover { text-decoration:underline; }
+
+        @media (max-width:900px) {
+            body { flex-direction:column; }
+            .reg-left { flex:none; min-height:220px; padding:30px; }
+            .benefit-list { display:none; }
+            .reg-right { flex:none; padding:30px 20px; }
+            .form-row { flex-direction:column; gap:0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== LEFT BRANDING ===== -->
+    <div class="reg-left">
+        <div class="brand-logo"><i class="fa-solid fa-tooth"></i>C7 Smile Clinic</div>
+        <p class="brand-text">Tạo tài khoản để đặt lịch khám, theo dõi hồ sơ bệnh nhân và xem lịch sử điều trị.</p>
+        <ul class="benefit-list">
+            <li><i class="fa-solid fa-calendar-check"></i> Đặt lịch khám online nhanh chóng</li>
+            <li><i class="fa-solid fa-users"></i> Quản lý hồ sơ người thân</li>
+            <li><i class="fa-solid fa-file-medical"></i> Xem lịch sử khám bệnh</li>
+            <li><i class="fa-solid fa-file-invoice-dollar"></i> Theo dõi hóa đơn & thanh toán</li>
+            <li><i class="fa-solid fa-bell"></i> Nhận nhắc nhở lịch hẹn</li>
+        </ul>
+    </div>
+
+    <!-- ===== RIGHT FORM ===== -->
+    <div class="reg-right">
+        <div class="reg-card">
+            <h2>Tạo tài khoản</h2>
+            <p class="subtitle">Điền thông tin bên dưới để đăng ký</p>
+
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/register}" method="post">
+                <div class="input-group">
+                    <label>Họ và Tên <span style="color:var(--danger)">*</span></label>
+                    <i class="fa-regular fa-user icon"></i>
+                    <input type="text" name="fullName" placeholder="Nguyễn Văn A" th:value="${fullName}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Email <span style="color:var(--danger)">*</span></label>
+                        <i class="fa-regular fa-envelope icon"></i>
+                        <input type="email" name="username" placeholder="email@example.com" th:value="${username}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Số điện thoại</label>
+                        <i class="fa-solid fa-phone icon"></i>
+                        <input type="tel" name="phone" placeholder="0912345678" th:value="${phone}">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Ngày sinh</label>
+                    <i class="fa-regular fa-calendar icon"></i>
+                    <input type="date" name="dob" th:value="${dob}">
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Mật khẩu <span style="color:var(--danger)">*</span></label>
+                        <i class="fa-solid fa-lock icon"></i>
+                        <input type="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                    </div>
+                    <div class="input-group">
+                        <label>Xác nhận mật khẩu <span style="color:var(--danger)">*</span></label>
+                        <i class="fa-solid fa-lock icon"></i>
+                        <input type="password" name="confirmPassword" placeholder="Nhập lại mật khẩu" required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-user-plus"></i> Đăng Ký
+                </button>
+            </form>
+
+            <div class="links">
+                <p>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+                <p><a th:href="@{/}"><i class="fa-solid fa-arrow-left"></i> Về trang chủ</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
